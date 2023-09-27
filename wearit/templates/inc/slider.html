@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Document</title>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+   <style>
+
+         /* Add custom CSS for the carousel images */
+         .carousel-image {
+             max-width: 100%;
+             height: auto;
+             display: block;
+             margin: 0 auto;
+       }
+
+   </style>
+   </head>
+   
+   <!-- slider section -->
+   <section class="slider_section ">
+    <div class="slider_bg_box">
+       <img src="{% static 'images/shoe2.jpg' %}" alt="">
+    </div>
+    <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+       <div class="carousel-inner">
+          <div class="carousel-item active">
+             <div class="container ">
+                <div class="row">
+                   <div class="col-md-7 col-lg-6 ">
+                      <div class="detail-box">
+                         <h1>
+                            <span>
+                            Sale 20% Off
+                            </span>
+                            <br>
+                            On Everything
+                         </h1>
+                         <p>
+                            Adidas, a trailblazer in the world of athletic footwear, delivers a fusion of cutting-edge technology and iconic design. Whether you're hitting the gym, exploring the city streets, or chasing your next adventure, Adidas shoes are your ultimate companion. Crafted with precision and passion, our shoes are engineered to boost your performance and elevate your style.
+                         </p>
+                         <div class="btn-box">
+                            <a href="" class="btn1">
+                            Shop Now
+                            </a>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+          <div class="carousel-item ">
+             <div class="container ">
+                <div class="row">
+                   <div class="col-md-7 col-lg-6 ">
+                      <div class="detail-box">
+                         <h1>
+                            <span>
+                            Sale 20% Off
+                            </span>
+                            <br>
+                            On Everything
+                         </h1>
+                         <p>
+                            Adidas, a global leader in athletic footwear, offers a diverse range of stylish and performance-driven shoes for every occasion. With innovative designs, superior comfort, and a commitment to sustainability, Adidas shoes empower you to step confidently into your active lifestyle while making a fashion statement. Elevate your game, express your style, and embrace the comfort of Adidas shoes – the perfect blend of form and function.
+                         </p>
+                         <div class="btn-box">
+                            <a href="" class="btn1">
+                            Shop Now
+                            </a>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+          <div class="carousel-item">
+             <div class="container ">
+                <div class="row">
+                   <div class="col-md-7 col-lg-6 ">
+                      <div class="detail-box">
+                         <h1>
+                            <span>
+                            Sale 20% Off
+                            </span>
+                            <br>
+                            On Everything
+                         </h1>
+                         <p>
+                            Moreover, Adidas is committed to sustainability. We're taking strides to reduce our environmental footprint, using recycled materials, and innovating sustainable manufacturing processes. By choosing Adidas, you're not only enhancing your personal style but also contributing to a better planet.
+                         </p>
+                         <div class="btn-box">
+                            <a href="" class="btn1">
+                            Shop Now
+                            </a>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       <div class="container">
+          <ol class="carousel-indicators">
+             <li data-target="#customCarousel1" data-slide-to="0" class="active"></li>
+             <li data-target="#customCarousel1" data-slide-to="1"></li>
+             <li data-target="#customCarousel1" data-slide-to="2"></li>
+          </ol>
+       </div>
+    </div>
+ </section>
+ <!-- end slider section -->
+   
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   </body>
+</html>  

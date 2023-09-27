@@ -1,0 +1,79 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <style>
+        .table-container {
+            max-height: 380px;
+            overflow-y: scroll;
+        }
+        .bottom-buttons {
+            position: sticky;
+            bottom: 20px;
+            background-color: transparent;
+            padding: 5px;
+            box-shadow: none;
+        }
+        .bottom-buttons a.btn {
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Admin Panel</h2>
+                    <form method="POST" class="mb-4">
+                        {%csrf_token%}
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Search by keyword">
+                            <button type="submit" class="btn btn-info">Search</button>
+                        </div>
+                    </form>
+                    <div class="table-container">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Last Name</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {%for data in datas%}
+                            <tr>
+                                <td>{{data.username}}</td>
+                                <td >{{data.last_name}}</td>
+                                <td>
+                                    <a href="{%url 'edituser' data.id%}" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="{%url 'deleteuser' data.id%}" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                            {%endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bottom-buttons text-center">
+                        <a href="{%url 'adduser'%}" class="btn btn-success">Create User</a>
+                        <form action="{%url 'logout'%}" method="post" style="display: inline;">
+                            {%csrf_token%}
+                            <button type="submit" class="btn btn-dark">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
