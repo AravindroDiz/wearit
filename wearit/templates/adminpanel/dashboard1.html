@@ -12,6 +12,7 @@
     <meta name="description"
         content="Ample Admin Lite is powerful and clean admin dashboard template, inpired from Bootstrap Framework">
     <meta name="robots" content="noindex,nofollow">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <title>Wear It</title>
     <link rel="canonical" href="https://www.wrappixel.com/templates/ample-admin-lite/" />
     <!-- Favicon icon -->
@@ -21,6 +22,7 @@
     <link rel="stylesheet" href="{% static 'adminpanel/plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css' %}">
     <!-- Custom CSS -->
     <link href="{% static 'adminpanel/css/style.min.css' %}" rel="stylesheet">
+
 </head>
 
 <body>
@@ -114,7 +116,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="#"
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'adminorder' %}"
                                 aria-expanded="false">
                                 <span class="hide-menu">Orders</span>
                             </a>
@@ -125,6 +127,19 @@
                                 <span class="hide-menu">Category</span>
                             </a>
                         </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'offerview' %}"
+                                aria-expanded="false">
+                                <span class="hide-menu">Coupon</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'prodoffer' %}"
+                                aria-expanded="false">
+                                <span class="hide-menu">Offers</span>
+                            </a>
+                        </li>
+
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'adminlogout' %}"
                                 aria-expanded="false">
@@ -200,7 +215,7 @@
                                             style="display: inline-block; width: 67px; height: 30px; vertical-align: top;"></canvas>
                                     </div>
                                 </li>
-                                <li class="ms-auto"><span class="counter text-info">0</span>
+                                <li class="ms-auto"><span class="counter text-info">{{order}}</span>
                                 </li>
                             </ul>
                         </div>
@@ -208,23 +223,145 @@
                 </div>
                 <!-- ============================================================== -->
                 <!-- PRODUCTS YEARLY SALES -->
-                <!-- ============================================================== -->
+                <!-- Add this to your HTML template -->
+
+                <div class="container">
+                    <div class="row my-5">
+                        <div class="col-md-6">
+                            <div class="bg-white">
+                                <canvas id="mychart1" width="400" height="300"></canvas>
+                                <script>
+                                    var ctx = document.getElementById('mychart1').getContext('2d');
+                                    var mychart1 = new Chart(ctx,{
+                                        type : 'pie',
+                                        data : {
+                                            labels : [{% for order in orders %} '{{order.product.name}}', {% endfor %}],
+                                            datasets: [{
+                                                label: 'Orders',
+                                                data: [{% for order in orders %} {{order.quantity}}, {% endfor %}],
+                                                backgroundColor: [
+                                            'rgba(255, 99, 132, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(255, 206, 86, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 159, 64, 1)'
+                                        ],
+                                            borderColor: [
+                                                'rgba(255, 99, 132, 1)',
+                                                'rgba(54, 162, 235, 1)',
+                                                'rgba(255, 206, 86, 1)',
+                                                'rgba(75, 192, 192, 1)',
+                                                'rgba(153, 102, 255, 1)',
+                                                'rgba(255, 159, 64, 1)'
+                                            ],
+                                                borderWidth: 1
+                                    }]
+
+
+                                            
+                                        },
+                                        options :{
+                                            scales: {
+                                                yAxes :[{
+                                                    ticks:{
+                                                        beginAtZero:true
+                                                    }
+                                                }]
+                                            }
+                                        }
+                                    })
+                                
+                                
+                                    
+                                </script>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+               
+
+
+
                 <div class="row">
                     <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                         <div class="white-box">
-                            <h3 class="box-title">Products Yearly Sales</h3>
+                            <h3 class="box-title">Sales Report</h3>
+                            <form id="dateForm" method="POST" action="{% url 'adminpanel' %}">
+                                {% csrf_token %}
+                                <label for="month">Month:</label>
+                                <select id="month" name="month" onchange="updateDays()">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                        
+                                <label for="day">Day:</label>
+                                <select id="day" name="day" >
+                                    <option value="2023">2023</option>
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                        
+                                <label for="year">Year:</label>
+                                <select id="year" name="year">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                        
+                                <input type="submit" value="Submit">
+                                <li class="nav-item">
+                                    {% with date_str="2023-10-28" %}
+                                    <a class="nav-link" href="{% url 'venue_pdf' %}">Download PDF</a>
+                                    {% endwith %}
+                                </li>
+                            </form>
                             <div class="d-md-flex">
                                 <ul class="list-inline d-flex ms-auto">
                                 </ul>
                             </div>
-                            <div id="ct-visits" style="height: 405px;">
-                                <div class="chartist-tooltip" style="top: -17px; left: -12px;"><span
-                                        class="chartist-tooltip-value">6</span>
-                                </div>
-                            </div>
+                            <!-- Add the canvas element for the sales chart -->
+                            <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Product Name</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">User</th>
+                                    <th scope="col">Order At</th>
+                                    <th scope="col">Total Price</th>
+                                    <th scope="col">Amount Payable</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                {% for i in orderitems %}
+                                  <tr>
+                                    <th scope="row">{{forloop.counter}}</th>
+                                    <td>{{i.product.name}}</td>
+                                    <td>{{i.quantity}}</td>
+                                    <td>{{i.order.user.first_name}}</td>
+                                    <td>{{i.order.order_date}}</td>
+                                    <td>{{i.item_price}}</td>
+                                    <td>{{i.item_price}}</td>
+                                    
+                                  </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
                         </div>
                     </div>
                 </div>
+                
                 <!-- ============================================================== -->
                 <!-- RECENT SALES -->
                 <!-- ============================================================== -->
@@ -274,165 +411,19 @@
                             </div>
                             <div class="comment-widgets">
                                 <!-- Comment Row -->
+                                {% for i in reviews %}
                                 <div class="d-flex flex-row comment-row p-3 mt-0">
-                                    <div class="p-2"><img src="{% static 'adminpanel/plugins/images/users/varun.jpg' %}" alt="user" width="50" class="rounded-circle"></div>
+                                    <div class="p-2"></div>
                                     <div class="comment-text ps-2 ps-md-3 w-100">
-                                        <h5 class="font-medium">James Anderson</h5>
-                                        <span class="mb-3 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry.It has survived not only five centuries. </span>
-                                        <div class="comment-footer d-md-flex align-items-center">
-                                             <span class="badge bg-primary rounded">Pending</span>
-                                             
-                                            <div class="text-muted fs-2 ms-auto mt-2 mt-md-0">April 14, 2021</div>
-                                        </div>
+                                        <h5 class="font-medium">{{i.user.first_name}}</h5>
+                                        <span class="mb-3 d-block">{{i.review}}</span>
                                     </div>
                                 </div>
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row p-3">
-                                    <div class="p-2"><img src="plugins/images/users/genu.jpg" alt="user" width="50" class="rounded-circle"></div>
-                                    <div class="comment-text ps-2 ps-md-3 active w-100">
-                                        <h5 class="font-medium">Michael Jorden</h5>
-                                        <span class="mb-3 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry.It has survived not only five centuries. </span>
-                                        <div class="comment-footer d-md-flex align-items-center">
-
-                                            <span class="badge bg-success rounded">Approved</span>
-                                            
-                                            <div class="text-muted fs-2 ms-auto mt-2 mt-md-0">April 14, 2021</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row p-3">
-                                    <div class="p-2"><img src="plugins/images/users/ritesh.jpg" alt="user" width="50" class="rounded-circle"></div>
-                                    <div class="comment-text ps-2 ps-md-3 w-100">
-                                        <h5 class="font-medium">Johnathan Doeting</h5>
-                                        <span class="mb-3 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry.It has survived not only five centuries. </span>
-                                        <div class="comment-footer d-md-flex align-items-center">
-
-                                            <span class="badge rounded bg-danger">Rejected</span>
-                                            
-                                            <div class="text-muted fs-2 ms-auto mt-2 mt-md-0">April 14, 2021</div>
-                                        </div>
-                                    </div>
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-12 col-sm-12">
-                        <div class="card white-box p-0">
-                            <div class="card-heading">
-                                <h3 class="box-title mb-0">Chat Listing</h3>
-                            </div>
-                            <div class="card-body">
-                                <ul class="chatonline">
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/varun.jpg" alt="user-img" class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">Varun Dhavan <small
-                                                        class="d-block text-success d-block">online</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/genu.jpg" alt="user-img" class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">Genelia
-                                                    Deshmukh <small class="d-block text-warning">Away</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/ritesh.jpg" alt="user-img" class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">Ritesh
-                                                    Deshmukh <small class="d-block text-danger">Busy</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/arijit.jpg" alt="user-img" class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">Arijit
-                                                    Sinh <small class="d-block text-muted">Offline</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/govinda.jpg" alt="user-img"
-                                                class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">Govinda
-                                                    Star <small class="d-block text-success">online</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="call-chat">
-                                            <button class="btn btn-success text-white btn-circle btn" type="button">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                            <button class="btn btn-info btn-circle btn" type="button">
-                                                <i class="far fa-comments text-white"></i>
-                                            </button>
-                                        </div>
-                                        <a href="javascript:void(0)" class="d-flex align-items-center"><img
-                                                src="plugins/images/users/hritik.jpg" alt="user-img" class="img-circle">
-                                            <div class="ms-2">
-                                                <span class="text-dark">John
-                                                    Abraham<small class="d-block text-success">online</small></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /.col -->
-                </div>
+                    
             </div>
             <!-- ============================================================== -->
             <!-- End Container fluid  -->
@@ -473,6 +464,55 @@
     <script src="{% static 'adminpanel/plugins/bower_components/chartist/dist/chartist.min.js' %}"></script>
     <script src="{% static 'adminpanel/plugins/bower_components/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js' %}"></script>
     <script src="{% static 'adminpanel/js/pages/dashboards/dashboard1.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+
+
+    <script>
+        function updateDays() {
+            const monthSelect = document.getElementById('month');
+            const daySelect = document.getElementById('day');
+            const selectedMonth = parseInt(monthSelect.value);
+            const daysInMonth = new Date(
+                new Date().getFullYear(), selectedMonth, 0
+            ).getDate();
+
+            // Clear existing day options
+            daySelect.innerHTML = '';
+
+            // Add day options for the selected month
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function populateYears() {
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+
+            for (let year = 2020; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+            }
+        }
+
+        // Initialize days based on the default month selection
+        updateDays();
+
+        // Populate the year select options
+        populateYears();
+    </script>
+    
+        
+
 </body>
 
 </html>

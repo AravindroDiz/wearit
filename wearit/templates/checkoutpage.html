@@ -1,0 +1,285 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .card {
+            max-width: 1000px;
+            margin: 2vh;
+        }
+
+        .card-top {
+            padding: 0.7rem 5rem;
+        }
+
+        .card-top a {
+            float: left;
+            margin-top: 0.7rem;
+        }
+
+        #logo {
+            font-family: 'Dancing Script';
+            font-weight: bold;
+            font-size: 1.6rem;
+        }
+
+        .card-body {
+            padding: 0 5rem 5rem 5rem;
+            background-image: url("https://i.imgur.com/4bg1e6u.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            display: flex;
+            border: 1px solid black;
+            padding: 0;
+        }
+
+        @media(max-width:768px) {
+            .card-body {
+                padding: 0 1rem 1rem 1rem;
+                background-image: url("https://i.imgur.com/4bg1e6u.jpg");
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
+
+            .card-top {
+                padding: 0.7rem 1rem;
+            }
+        }
+
+        .row {
+            margin: 0;
+        }
+
+        .upper {
+            padding: 1rem 0;
+            justify-content: space-evenly;
+        }
+
+        #three {
+            border-radius: 1rem;
+            width: 22px;
+            height: 22px;
+            margin-right: 3px;
+            border: 1px solid blue;
+            text-align: center;
+            display: inline-block;
+        }
+
+        #payment {
+            margin: 0;
+            color: blue;
+        }
+
+        .icons {
+            margin-left: auto;
+        }
+
+        form span {
+            color: rgb(179, 179, 179);
+        }
+
+        form {
+            padding: 2vh 0;
+        }
+
+        input {
+            border: 1px solid rgba(0, 0, 0, 0.137);
+            padding: 1vh;
+            margin-bottom: 4vh;
+            outline: none;
+            width: 100%;
+            background-color: rgb(247, 247, 247);
+        }
+
+        input:focus::-webkit-input-placeholder {
+            color: transparent;
+        }
+
+        .header {
+            font-size: 1.5rem;
+        }
+
+        .left {
+            background-color: #ffffff;
+            padding: 2vh;
+        }
+
+        .left img {
+            width: 2rem;
+        }
+
+        .left .col-4 {
+            padding-left: 0;
+        }
+
+        .right .item {
+            padding: 0.3rem 0;
+        }
+
+        .right {
+            background-color: #ffffff;
+            padding: 2vh;
+        }
+
+        .col-8 {
+            padding: 0 1vh;
+        }
+
+        .lower {
+            line-height: 2;
+        }
+
+        .btn {
+            background-color: rgb(23, 4, 189);
+            border-color: rgb(23, 4, 189);
+            color: white;
+            width: 100%;
+            font-size: 0.7rem;
+            margin: 4vh 0 1.5vh 0;
+            padding: 1.5vh;
+            border-radius: 0;
+        }
+
+        .btn:focus {
+            box-shadow: none;
+            outline: none;
+            box-shadow: none;
+            color: white;
+            -webkit-box-shadow: none;
+            -webkit-user-select: none;
+            transition: none;
+        }
+
+        .btn:hover {
+            color: white;
+        }
+
+        a {
+            color: black;
+        }
+
+        a:hover {
+            color: black;
+            text-decoration: none;
+        }
+
+        input[type=checkbox] {
+            width: unset;
+            margin-bottom: unset;
+        }
+
+        #cvv {
+            background-image: linear-gradient(to left, rgba(255, 255, 255, 0.575), rgba(255, 255, 255, 0.541)), url("https://img.icons8.com/material-outlined/24/000000/help.png");
+            background-repeat: no-repeat;
+            background-position-x: 95%;
+            background-position-y: center;
+        }
+        .card-body-right,
+        .card-body-left{
+            margin: 5px 20px;
+        }
+
+        #cvv:hover {}
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <form action="{% url 'checkoutpage' %}" method="POST">
+            {% csrf_token %}
+            <div class="card-top border-bottom text-center">
+                <span id="logo">Checkout</span>
+            </div>
+            <div class="card-body row">
+                <div class="card-body-left col-md-6">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="left border">
+                                <div class="row">
+                                    <span class="header">Payment</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="right border">
+                                <div class="header">Order Summary</div>
+                                <h3>Total orders:{{num}}</h3>
+                                {% for items in cart_items %}
+                                <div class="row item">
+                                    <div class="col-4 align-self-center"><img class="img-fluid"
+                                            style="height: 50px; width:auto" src="{{items.product.image.url}}"></div>
+                                    <div class="col-8">
+                                        <div class="row text-muted">{{items.product.name}}</div>
+                                        <div class="row">
+                                            <h3> Total Qty:{{items.quantity}}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <h2>Enter Coupon Code</h2>
+                        <label for="coupon_code">Coupon Code:</label>
+                        <input type="text" id="coupon_code" name="coupon_code" placeholder="Enter your coupon code" >
+                        <button type="submit" name="apply_coupon">Apply</button>
+                </div>
+    
+                <div class="card-body-right col-md-6">
+    
+                    <div class="row lower">
+                        <div class="col text-left">
+                            <h2><b>Total to pay</b></h2>
+                        </div>
+                        <div class="col text-right">
+                            <h2><b>Rs.{{total}}</b></h2>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="codOption" name="payment_method" value = "cod">
+                        <label class="form-check-label" for="codOption">
+                            Cash on Delivery (COD)
+                        </label>
+                    </div><br>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="codOption" name="payment_method" value = "upi">
+                        <label class="form-check-label" for="codOption">
+                            upi
+                        </label>
+                    </div>
+                    <div>
+                        <button type="submit">Place Order</button>
+                    </div>
+                    
+    
+                </div>
+                
+    
+            </div>
+        </form>
+    
+    </div>
+</body>
+
+</html>
+
+
+
+
+
+

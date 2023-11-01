@@ -38,7 +38,6 @@
     <header>
       
         <!-- Heading -->
-        {% load static %}
 
 <header class="header_section">
     <div class="container">
@@ -81,7 +80,7 @@
                   {% endif %}
                </li>
                 <li class="nav-item">
-                   <a class="nav-link" href="#">
+                   <a class="nav-link" href="{% url 'cart' %}">
                       <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                          <g>
                             <g>
@@ -187,18 +186,27 @@
                   </div>
                   <span class="text-muted">
                 </div>
-      
-                <div class="mb-3">
-                  <span class="h5" id="priceTag" > Rs.{{ proddetails.base_price }}</span>
-
+                {% if product_offer %}
+                <div class="product-offer">
+                  <p> <strong>Rs. {{ discounted_price }}</strong>  <strike>Rs. {{ proddetails.base_price }}</strike> <p style="color: green;" >{{ product_offer.title }}</p> </p>
+    
                 </div>
+                {% endif %}
       
                 <h6 class="title text-dark">
-                    {{ proddetails.description }}
+                    {{ proddetails.description }} 
                 </h6>
+
+                {% if proddetails.quantity == 0 %}
+                <p>Out of Stock</p>
+                {% else %}
+                <h6 class="title text-dark">
+                  {{ proddetails.quantity }} Left
+              </h6>
+              {% endif %}
       
       
-                <hr />
+                <hr/>
       
                 <div class="row mb-4">
                   <div class="col-md-4 col-6">
@@ -210,9 +218,18 @@
                     </select>
                   </div>
                 </div>
-                <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
-                <a href="#" class="btn btn-primary shadow-0"> Add to Bag </a>
+
+                <a href="{% url 'buynow' proddetails.id %}" class="btn btn-warning shadow-0 {% if proddetails.quantity == 0 %}disabled{% endif %}">
+                  {% if proddetails.quantity == 0 %}
+                    Out of Stock
+                  {% else %}
+                      Buy now
+                  {% endif %}
+                </a>
+                <a href="{% url 'addtocart' proddetails.id %}" class="btn btn-warning shadow-0"> Add to Cart </a>
+                
               </div>
+              {% include "alert.html" %}
             </main>
           </div>
         </div>
@@ -229,15 +246,7 @@
                   <li class="nav-item d-flex" role="presentation">
                     <a class="nav-link d-flex align-items-center justify-content-center w-100 active" id="ex1-tab-1" data-mdb-toggle="pill" href="#ex1-pills-1" role="tab" aria-controls="ex1-pills-1" aria-selected="true">Specification</a>
                   </li>
-                  <li class="nav-item d-flex" role="presentation">
-                    <a class="nav-link d-flex align-items-center justify-content-center w-100" id="ex1-tab-2" data-mdb-toggle="pill" href="#ex1-pills-2" role="tab" aria-controls="ex1-pills-2" aria-selected="false">Warranty info</a>
-                  </li>
-                  <li class="nav-item d-flex" role="presentation">
-                    <a class="nav-link d-flex align-items-center justify-content-center w-100" id="ex1-tab-3" data-mdb-toggle="pill" href="#ex1-pills-3" role="tab" aria-controls="ex1-pills-3" aria-selected="false">Shipping info</a>
-                  </li>
-                  <li class="nav-item d-flex" role="presentation">
-                    <a class="nav-link d-flex align-items-center justify-content-center w-100" id="ex1-tab-4" data-mdb-toggle="pill" href="#ex1-pills-4" role="tab" aria-controls="ex1-pills-4" aria-selected="false">Seller profile</a>
-                  </li>
+
                 </ul>
                 <!-- Pills navs -->
       
@@ -311,15 +320,57 @@
                 <!-- Pills content -->
               </div>
             </div>
+            
             <div class="col-lg-4">
+              
               <div class="px-0 border rounded-2 shadow-0">
-                <div class="card"></div>
+                <div class="card">
+                  <li class="nav-item d-flex" role="presentation">
+                    <a class="nav-link d-flex align-items-center justify-content-center w-100 active" id="ex1-tab-1" data-mdb-toggle="pill" href="#ex1-pills-1" role="tab" aria-controls="ex1-pills-1" aria-selected="true">Reviews</a>
+                  </li>
+
+                </div>
+                {% for i in reviews %}
+                  <h4>{{i.user.first_name}} </h4>
+
+                  <p>{{i.review}}</p>
+                {% endfor %}
+                </div>
+              </div>
+              
+            </div>
+            
+          </div>
+          
+        </div>
+      </section>
+
+      <section class="product_description_area">
+        <div class="container">
+          
+                <div class="col-lg-6">
+                  <div class="review_box">
+                    <h4>Add a Review</h4>
+                    <form method="POST" action="{% url 'reviews' product.id %}">
+                      {% csrf_token %}
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <textarea class="form-control" name="message" id="message" rows="1" placeholder="Review" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Review'"></textarea></textarea>
+                        </div>
+                      </div>
+                      <div class="col-md-12 text-right">
+                        <button type="submit" value="submit" class="primary-btn">Submit Now</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
       <footer>
         <div class="container">
            <div class="row">
@@ -382,7 +433,10 @@
             let option = size.options[size.selectedIndex]
             document.getElementById('priceTag').textContent =`Rs.${option.getAttribute('data-price')}`
           })
-         
+
+
+
         </script>
+
 </body>
 </html>

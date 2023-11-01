@@ -13,7 +13,7 @@ def sent_otp(request):
 
     # Replace these values with your Twilio account SID and auth token
     account_sid = 'AC83eb13a8bd0db21bfc099c28e5154b4d'
-    auth_token = 'edb0697c43087618a9252a9f274a0f5c'
+    auth_token = '43866e382ba9d15ef6e1b31b87eaf58d'
 
     client = Client(account_sid, auth_token)
 

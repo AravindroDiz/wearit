@@ -1,4 +1,13 @@
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Document</title>
+</head>
+<body>
+
 
 <header class="header_section">
     <div class="container">
@@ -17,18 +26,18 @@
                 {% if request.user.is_authenticated %}
                 <li class="nav-item {% if products|default:"" %}active{% endif %}">
                   <a class="nav-link" href="{% url 'products' %}">Products</a>
-               </li>
-               <li class="nav-item {% if contacts|default:"" %}active{% endif %}">
-                  <a class="nav-link" href="{% static 'contact.html' %}">Contact</a>
-               </li>
-                <li class="nav-item {% if logout|default:"" %}active{% endif %}">
-                  <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-               </li>
-               {% else %}
-
-                <li class="nav-item {% if contacts|default:"" %}active{% endif %}">
-                   <a class="nav-link" href="{% static 'contact.html' %}">Contact</a>
                 </li>
+               
+                  
+                  
+              
+               <li class="nav-item {% if profile|default:"" %}active{% endif %}">
+                  <a class="nav-link" href="{% url 'userprofile' user.id %}">Profile</a>
+               </li>
+               <li class="nav-item {% if logout|default:"" %}active{% endif %}">
+                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              </li>
+               {% else %}
 
                 <li class="nav-item {% if login|default:"" %}active{% endif %}">
                   <a class="nav-link" href="{% url 'loginn' %}">Login</a>
@@ -38,7 +47,7 @@
                   {% endif %}
                </li>
                 <li class="nav-item">
-                   <a class="nav-link" href="#">
+                   <a class="nav-link" href="{% url 'cart' %}">
                       <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                          <g>
                             <g>
@@ -93,13 +102,21 @@
                       </svg>
                    </a>
                 </li>
-                <form class="form-inline">
-                   <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                   <i class="fa fa-search" aria-hidden="true"></i>
-                   </button>
-                </form>
+                <div class="search_input" id="search_input_box">
+                  <div class="container">
+                     <form class="d-flex justify-content-between" method="get" action="{% url 'search_products' %}">
+                        <input type="text" name="q" class="form-control" id="search_input" placeholder="Search Here" >
+                        <button type="submit" class="btn" name="search">Search</button>
+                        <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
+                     </form>
+                  </div>
+               </div>
+               
+            
              </ul>
           </div>
        </nav>
     </div>
  </header>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4" style="text-align: center;">Add Coupon</h1>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form method="post" class="p-4 border rounded bg-light">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="code" class="form-label">Coupon Code:</label>
+                        <input type="text" class="form-control" id="code" name="code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="valid_from" class="form-label">Valid From:</label>
+                        <input type="datetime-local" class="form-control" id="valid_from" name="valid_from" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="valid_to" class="form-label">Valid To:</label>
+                        <input type="datetime-local" class="form-control" id="valid_to" name="valid_to" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discount" class="form-label">Discount (%):</label>
+                        <input type="number" class="form-control" id="discount" name="discount" min="0" max="100" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Add Coupon</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

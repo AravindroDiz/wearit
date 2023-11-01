@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils import timezone
+from django.core.validators import MaxValueValidator,MinValueValidator
 
 
 
@@ -27,6 +29,7 @@ class CustomUserManager(BaseUserManager):
 class Customer(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
+    phone = models.CharField(max_length=12)
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -49,17 +52,18 @@ class Product(models.Model):
     description = models.TextField(max_length=500,null=False,blank=False)
     quantity = models.IntegerField(null=False,blank=False)
     base_price = models.IntegerField(default=0)
+    sale_price = models.IntegerField(default=0)
     image = models.ImageField(upload_to='media/',blank=True,null=True)
     sub_image = models.ManyToManyField('SubImage',blank=True)
     status = models.BooleanField(default=True)
-    trending = models.BooleanField(default=True)
+    is_sale = models.BooleanField(default=False)
 
 
     def __str__(self):
         return self.name
     
 class SubImage(models.Model):
-    products =  models.ForeignKey(Product, on_delete=models.CASCADE)
+    products =  models.ForeignKey(Product, on_delete=models.CASCADE)    
     image = models.ImageField(upload_to='product_sub_images/')
     
     
@@ -80,3 +84,73 @@ class SizeVariant(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Address(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE,default=True)
+    street_address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=10)
+    is_default_address = models.BooleanField(default=False)
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+
+class Order(models.Model):
+    user = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    order_date = models.DateTimeField(default=timezone.now)
+    total_price = models.DecimalField(max_digits=10,decimal_places=2)
+    is_paid = models.BooleanField(default=False)
+    
+    
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    item_price = models.DecimalField(max_digits=10,decimal_places=2)
+    payment_option = models.CharField(max_length=10,choices=[('pending','pending'),('Cancelled','Cancelled'),('Delivered','Delivered'),('returned','returned')],default='pending')
+    is_cancel = models.BooleanField(default=False)
+    returned = models.BooleanField(default=False)
+
+
+class Reviews(models.Model):
+    user = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    review = models.TextField(max_length=500)
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50,unique=True)
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    discount = models.IntegerField(validators=[MinValueValidator(0),MaxValueValidator(100)])
+    active = models.BooleanField(default=True)
+
+
+class ProductOffer(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
+    prod = models.CharField(max_length=200,default=0)
+
+
+class CategoryOffer(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
+
+
+class CroppedImage(models.Model):
+    original_image = models.ImageField(upload_to='images/')
+
+
+
+    

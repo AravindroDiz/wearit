@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Address Details</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" />
+  <style>
+    .table-container {
+      max-height: 380px;
+      overflow-y: scroll;
+    }
+
+    .bottom-buttons {
+      position: sticky;
+      bottom: 20px;
+      background-color: transparent;
+      padding: 5px;
+      box-shadow: none;
+    }
+
+    .bottom-buttons a.btn {
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class=" d-flex justify-content-center">
+    <div>
+      
+      <div class="bg-dark p-5 my-3" style="width: 40vw;">
+        <h1 class="text-light">Address</h1>
+        {% for i in address %}
+        <div class="bg-light my-3 p-3">
+          {{ i.street_address }},<br />{{ i.city }},<br />{{ i.state }},<br />{{ i.zip_code }}
+
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
