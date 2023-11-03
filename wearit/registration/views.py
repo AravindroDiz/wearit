@@ -31,7 +31,7 @@ def index(request):
     return render(request,'index.html',{'homepage':True})
 
 
-
+@login_required(login_url='loginn')
 def products(request):
     user = request.user
     prod = Product.objects.filter(status = True)
@@ -125,7 +125,7 @@ def register(request):
 
     return render(request,'register.html')
     
-
+@login_required(login_url='loginn')
 def productdetails(request,product_id):
     product = get_object_or_404(Product, pk=product_id)
     product_offer = ProductOffer.objects.filter(product=product).first()
@@ -155,12 +155,31 @@ def productdetails(request,product_id):
 
 
 def admin(request):
-    return render(request,'adminpanel/admin.html')
+    if request.user.is_authenticated:
+        return redirect('adminpanel')
+
+    if request.method == 'POST':
+        username = request.POST['email']
+        password = request.POST['password']
+
+        user = authenticate(request,email=username,password=password)
+
+        if user is not None:
+            if user.is_staff:
+                login(request, user)
+                request.session['username'] = username
+                return redirect('adminpanel')
+            else:
+                messages.warning(request, 'Invalid Credentials!')
+        else:
+            messages.warning(request, 'Account Not Found!')
+
+    return render(request, 'adminpanel/admin.html')
 
 
-
+@login_required(login_url='admin')
 def adminpanel(request):
-
+    
     prod = Product.objects.filter(status = True)
     reviews = Reviews.objects.all()
     products = Product.objects.filter(status=True).count()
@@ -213,19 +232,22 @@ def adminpanel(request):
     
 
 
-
+@login_required(login_url='admin')
 def productview(request):
     proview = Product.objects.filter(status=True)
     category = Category.objects.all()
     return render(request,'adminpanel/productview.html',{'view':proview,'cat':category})
 
 
+@login_required(login_url='admin')
 def filter(request,id):
     proview = Product.objects.filter(category_id = id,status=True)
     category = Category.objects.all()
 
     return render(request,'adminpanel/productview.html',{'view':proview,'cat':category})
 
+
+@login_required(login_url='admin')
 def addproduct(request):
     if request.method == 'POST':
         name = request.POST['name']
@@ -249,6 +271,8 @@ def addproduct(request):
     return render(request,'adminpanel/addproduct.html',{'category': cat})
 
 
+
+@login_required(login_url='admin')
 def addcategory(request):
     if request.method == 'POST':
         catname = request.POST['name']
@@ -264,10 +288,14 @@ def addcategory(request):
     category = Category.objects.all()
     return render(request,'adminpanel/addcategory.html',{'cat':category})
 
+
+@login_required(login_url='admin')
 def categoryview(request):
     catview = Category.objects.all()
     return render(request,'adminpanel/categoryview.html',{'cat':catview})
 
+
+@login_required(login_url='admin')
 def editcategory(request,id):
     category = Category.objects.get(id=id)
     if request.method == 'POST':
@@ -282,6 +310,7 @@ def editcategory(request,id):
     return render(request,'adminpanel/editcategory.html',{'cat':category})
 
 
+@login_required(login_url='admin')
 def addsize(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -298,6 +327,8 @@ def addsize(request, product_id):
 
     return render(request, 'adminpanel/addsize.html', {'product': product})
 
+
+@login_required(login_url='admin')
 def deletecategory(request, id):
     try:
         category = Category.objects.get(id=id)
@@ -314,6 +345,7 @@ def deletecategory(request, id):
     return redirect('adminpanel')
 
 
+@login_required(login_url='admin')
 def deleteproduct(request, id):
     try:
         product = Product.objects.get(id=id)
@@ -327,7 +359,7 @@ def deleteproduct(request, id):
 
         pass
 
-
+@login_required(login_url='admin')
 def editproduct(request,id):
     product = Product.objects.get(id=id)
     category = Category.objects.all()
@@ -349,15 +381,18 @@ def editproduct(request,id):
     
     return render(request,'adminpanel/editproduct.html',{'editpro':product,'cat': category,'prodcat':productCat})
 
+@login_required(login_url='admin')
 def userview(request):
     userview = Customer.objects.filter(is_superuser=False)
     return render(request,'adminpanel/userview.html',{'usr':userview})
 
 
+@login_required(login_url='admin')
 def offerview(request):
     offerview = Coupon.objects.all()
     return render(request,'offerview.html',{'offer':offerview})
 
+@login_required(login_url='admin')
 def blockuser(request,id):
     block = Customer.objects.get(id=id)
     if block.is_active:
@@ -368,6 +403,8 @@ def blockuser(request,id):
         block.save()
     return redirect('userview')
 
+
+@login_required(login_url='admin')
 def blockcategory(request,id):
     category = Category.objects.get(id=id)
     if category.status:
@@ -378,7 +415,7 @@ def blockcategory(request,id):
         category.save()
     return redirect('categoryview')
 
-
+@login_required(login_url='loginn')
 def userprofile(request,id):
     user = request.user
     users = Customer.objects.get(id=id)
@@ -390,7 +427,7 @@ def userprofile(request,id):
         default_address=None
     return render(request,'userprofile.html',{'users':users,'default_address': default_address,'order':order})
 
-@login_required
+@login_required(login_url='loginn')
 def addaddress(request):
     if request.method == 'POST':
         street_address = request.POST.get('address')
@@ -412,7 +449,7 @@ def addaddress(request):
             return redirect('userprofile',id = users.id)
     return render(request, 'addaddress.html')
 
-
+@login_required(login_url='loginn')
 def addressview(request):
     user = request.user
     users = Customer.objects.get(email=user)
@@ -420,7 +457,7 @@ def addressview(request):
     return render(request, 'addressview.html', {'address': address})
 
 
-
+@login_required(login_url='loginn')
 def editprofile(request):
     user = request.user
     users = Customer.objects.get(email=user)
@@ -435,7 +472,7 @@ def editprofile(request):
 
     return render(request,'editprofile.html',{'users':users})
 
-
+@login_required(login_url='loginn')
 def addtocart(request,id):
     product = Product.objects.get(id=id)
     user = request.user
@@ -451,7 +488,7 @@ def addtocart(request,id):
         messages.success(request,"Product added succesfully.")
     return redirect('products')
 
-
+@login_required(login_url='loginn')
 def buynow(request,id):
     product = Product.objects.get(id=id)
     user = request.user
@@ -466,6 +503,7 @@ def buynow(request,id):
             cart_item.save()
     return redirect('cart')
 
+@login_required(login_url='loginn')
 def removefromcart(request, id):
     user = request.user
     cart_item = get_object_or_404(Cart, user=user, id=id)
@@ -473,7 +511,7 @@ def removefromcart(request, id):
     return redirect('home')
     
     
-
+@login_required(login_url='loginn')
 def cart(request): 
     user = request.user
     users = Customer.objects.get(email=user)
@@ -485,6 +523,7 @@ def cart(request):
 
             
     return render(request,'cart.html',{'cart_items':cart_items,'address':addre,'num':items_num,'total':total})
+
 
 
 def calculatetotal(cart_items):
@@ -502,7 +541,7 @@ def calculatetotal(cart_items):
         total_price += item_total
     return total_price
 
-
+@login_required(login_url='loginn')
 def update_quantity(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, pk=product_id)
@@ -531,6 +570,8 @@ def update_quantity(request, product_id):
         return JsonResponse({'new_quantity': new_quantity,'total':total})
     return JsonResponse({'error': 'Invalid request method'})
 
+
+@login_required(login_url='loginn')
 def checkoutpage(request):
     user = request.user
     cus = Customer.objects.get(email=user)
@@ -605,7 +646,7 @@ def successpage(request):
     return render(request,'successpage.html')
 
 
-@login_required
+@login_required(login_url='loginn')
 def orderview(request):
 
     user = request.user
@@ -622,7 +663,7 @@ def orderview(request):
 
     return render(request,'ordersview.html',{'order_items': order_items,'users':users})
 
-
+@login_required(login_url='loginn')
 def cancel_order(request,id):
     if request.user.is_authenticated:
     
@@ -643,7 +684,7 @@ def cancel_order(request,id):
     
     return render(request,'ordersview.html',{'order':orderitem})
 
-
+@login_required(login_url='loginn')
 def return_order(request,id):
     if request.user.is_authenticated:
     
@@ -671,7 +712,7 @@ def order_delivered(request,id):
         order.save()
         return redirect('adminorder')
     
-
+@login_required(login_url='admin')
 def adminorder(request):
     orderitem = OrderItem.objects.all()
     user = Customer.objects.all()
@@ -679,7 +720,7 @@ def adminorder(request):
 
 
 
-
+@login_required(login_url='loginn')
 def reviews(request,id):
     user = request.user
     users = Customer.objects.get(email = user)
@@ -692,7 +733,7 @@ def reviews(request,id):
     return redirect(request,'productdetails.html',{'users':users,'product':product,'reviews':reviews})
 
 
-
+@login_required(login_url='loginn')
 def apply_coupon(request):
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
@@ -711,6 +752,8 @@ def apply_coupon(request):
 
         return redirect('view_cart')
 
+
+@login_required(login_url='admin')
 def add_coupon(request):
     if request.method == 'POST':
         code = request.POST['code']
@@ -722,6 +765,7 @@ def add_coupon(request):
         coupon.save()
         return redirect('adminpanel')
     return render(request,'addcoupon.html')
+
 
 
 def get_discount_price(request, id):
@@ -740,6 +784,8 @@ def get_discount_price(request, id):
 
     return render(request, 'productdetails.html', context)
 
+
+@login_required(login_url='admin')
 def salesreport(request):
     products = OrderItem.objects.all()
 
@@ -749,7 +795,7 @@ def salesreport(request):
 
     return render(request,'salesreport.html',context)
     
-
+@login_required(login_url='admin')
 def venue_pdf(request):
         selected_date = datetime.now()
         products = OrderItem.objects.filter(order__order_date__date=selected_date)
@@ -769,7 +815,7 @@ def venue_pdf(request):
 
         return response
 
-
+@login_required(login_url='admin')
 def add_offer(request):
     if request.method == 'POST':
         title = request.POST['title']
@@ -789,12 +835,12 @@ def add_offer(request):
     product = Product.objects.all()
     return render(request, 'addproductoffer.html', {'product': product})
 
-
+@login_required(login_url='admin')
 def productofferview(request):
     prodoffer = ProductOffer.objects.all()
     return render(request,'productofferview.html',{'prodoffer':prodoffer})
 
-
+@login_required(login_url='loginn')
 def search_products(request):
     query = request.GET.get('q')
     products = Product.objects.filter(name__icontains=query)
@@ -805,6 +851,7 @@ def search_products(request):
 
 def adminlogout(request):
     auth.logout(request)
+    request.session.flush()
     return redirect('loginn')
 
 
