@@ -21,7 +21,7 @@ urlpatterns = [
     path('prodoffer/',views.productofferview,name='prodoffer'),
     path('blockuser/<int:id>/',views.blockuser,name='blockuser'),
     path('deletecategory/<int:id>/',views.deletecategory,name='deletecategory'),
-    path('otp/',views.otp,name='otp'),
+    # path('otp/',views.otp,name='otp'),
     path('logout', LogoutView.as_view(next_page='home'), name= 'logout'),
     path('addcategory/',views.addcategory,name='addcategory'),
     path('addsize/<int:product_id>/',views.addsize,name='addsize'),

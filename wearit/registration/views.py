@@ -56,9 +56,13 @@ def loginn(request):
         user = authenticate(request,email=username,password=password)
         if user is not None:
             if user.is_active:
-                if sent_otp(request):
-                    request.session['username'] = username
-                    return redirect('otp')
+                login(request,user)
+                request.session['username'] = username
+                return redirect('home')
+                    
+                    
+                # if sent_otp(request):
+                    
         
             else:
                 messages.warning(request,'Account is Blocked !')
@@ -69,39 +73,39 @@ def loginn(request):
 
     return render(request, 'login.html',{'login':True})
 
-def otp(request):
-    if request.method == 'POST':
-        verify_otp = request.POST.get('verify_otp') 
+# def otp(request):
+#     if request.method == 'POST':
+#         verify_otp = request.POST.get('verify_otp') 
 
-        if 'username' in request.session:
-            username = request.session['username']
-        else:
-            messages.error(request, 'Username not found in session')
-            return redirect('loginn')
+#         if 'username' in request.session:
+#             username = request.session['username']
+#         else:
+#             messages.error(request, 'Username not found in session')
+#             return redirect('loginn')
 
-        otp_secret_key = request.session['otp_secret_key']
-        otp_valid_until = request.session['otp_valid_date']
-        if otp_secret_key and otp_valid_until:
-            valid_until = datetime.fromisoformat(otp_valid_until)
-            if valid_until > datetime.now():
-                totp = pyotp.TOTP(otp_secret_key, interval=60)
-                if totp.verify(verify_otp):
-                    try:
-                        user = Customer.objects.get(email=username)
-                        login(request, user)
-                        del request.session['otp_secret_key']
-                        del request.session['otp_valid_date']
-                        return redirect('home')
-                    except Customer.DoesNotExist:
-                        messages.error(request, 'User not found')
-                else:
-                    messages.error(request, 'Invalid one-time password')
-            else:
-                messages.error(request, 'One-time password expired')
-        else:
-            messages.error(request, 'Something went wrong')
+#         otp_secret_key = request.session['otp_secret_key']
+#         otp_valid_until = request.session['otp_valid_date']
+#         if otp_secret_key and otp_valid_until:
+#             valid_until = datetime.fromisoformat(otp_valid_until)
+#             if valid_until > datetime.now():
+#                 totp = pyotp.TOTP(otp_secret_key, interval=60)
+#                 if totp.verify(verify_otp):
+#                     try:
+#                         user = Customer.objects.get(email=username)
+#                         login(request, user)
+#                         del request.session['otp_secret_key']
+#                         del request.session['otp_valid_date']
+#                         return redirect('home')
+#                     except Customer.DoesNotExist:
+#                         messages.error(request, 'User not found')
+#                 else:
+#                     messages.error(request, 'Invalid one-time password')
+#             else:
+#                 messages.error(request, 'One-time password expired')
+#         else:
+#             messages.error(request, 'Something went wrong')
 
-    return render(request, 'otp.html')
+#     return render(request, 'otp.html')
 
 def register(request):
     if request.method == "POST":
