@@ -140,6 +140,10 @@ class ProductOffer(models.Model):
     discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
     prod = models.CharField(max_length=200,default=0)
 
+class Refferalcode(models.Model):
+    code = models.CharField(max_length=10)
+    user = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    
 
 class CategoryOffer(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)

@@ -1,0 +1,79 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <style>
+        .table-container {
+            max-height: 380px;
+            overflow-y: scroll;
+        }
+        .bottom-buttons {
+            position: sticky;
+            bottom: 20px;
+            background-color: transparent;
+            padding: 5px;
+            box-shadow: none;
+        }
+        .bottom-buttons a.btn {
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero_area">
+        <div class="hero_area">
+ 
+          {% include 'inc/adminnavbar.html' %}
+       </div>
+ 
+ {% block body %}
+ 
+ 
+ {% endblock body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Refferal Code</h2>
+                    <form method="POST" class="mb-4">
+                        {%csrf_token%}
+                        <div class="input-group">
+                            <a href="{% url 'refferalcode' %}" class="btn btn-success">Add Refferal</a>
+                            
+                        </div>
+                    </form>
+                    <div class="table-container">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Code</th>
+                
+                                </tr>
+                            </thead>
+                        <tbody>
+                        {% for i in refferal %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.code }}</td>
+                        </tr>
+                        {% endfor %}
+                        <!-- Add more user rows as needed -->
+                    </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

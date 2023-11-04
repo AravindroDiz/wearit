@@ -52,6 +52,9 @@ urlpatterns = [
     path('add_offer/',views.add_offer,name='add_offer'),
     path('salesreport/',views.salesreport,name='salesreport'),
     path('searchproduct/',views.search_products,name='search_products'),
+    path('refferalcode/',views.refferalcode,name='refferalcode'),
+    path('refferalview/',views.refferalview,name='refferalview'),
+    
     path('reset_password/',auth_views.PasswordResetView.as_view(template_name="passwordreset.html"),name='reset_password'),
 
     path('reset_password_sent/',auth_views.PasswordResetDoneView.as_view(template_name="passwordresetsent.html"),name='password_reset_done'),

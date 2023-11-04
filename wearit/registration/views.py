@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.models import User,auth
 from django.contrib import messages
-from .models import Customer,Category,Product,SizeVariant,SubImage,Address,Cart,Order,OrderItem,Reviews,Coupon,ProductOffer,CategoryOffer
+from .models import Customer,Category,Product,SizeVariant,SubImage,Address,Cart,Order,OrderItem,Reviews,Coupon,ProductOffer,Refferalcode
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -643,7 +643,28 @@ def checkoutpage(request):
 
 @csrf_exempt
 def successpage(request):
-    return render(request,'successpage.html')
+    product = ProductOffer.objects.all()
+    latest_order = Order.objects.filter(user=request.user).latest('order_date')
+    cart_items = OrderItem.objects.filter(order=latest_order)
+
+    total = 0
+    deduction = 0
+
+    for item in cart_items:
+        total += item.item_price
+        product_offer = ProductOffer.objects.get(product=item.product)
+        deduction = product_offer.discount
+        total_amout = item.item_price - product_offer.discount
+        print(total)
+
+    context = {
+        'cart_items': cart_items,
+        'total': total,
+        'deduction': deduction,
+        'total_amount':total_amout
+    }
+
+    return render(request, 'successpage.html', context)
 
 
 @login_required(login_url='loginn')
@@ -846,7 +867,27 @@ def search_products(request):
     products = Product.objects.filter(name__icontains=query)
     return render(request,'search_results.html',{'product':products})
 
-# def sort_products(request):
+def refferalcode(request):
+    if request.method == 'POST':
+        code = request.POST['code']
+        category_name = request.POST.get('category')
+
+        try:
+            user = Customer.objects.get(first_name=category_name)
+            offer = Refferalcode.objects.create(code=code, user=user)
+            offer.save()
+            
+            return redirect('adminpanel') 
+        except Product.DoesNotExist:
+            pass
+
+    user = Customer.objects.all()
+    return render(request,'refferalcode.html',{'user':user})
+
+@login_required(login_url='admin')
+def refferalview(request):
+    refferal = Refferalcode.objects.all()
+    return render(request,'refferalcodeview.html',{'refferal':refferal})
 
 
 def adminlogout(request):
