@@ -67,7 +67,7 @@
         <h2>Add Size</h2>
         <form method="POST" action="{% url 'addsize' product.id %}">
             {% csrf_token %}
-            {% include 'alert.html'%}
+            {% for message in messages %} <p>{{message}}</p> {% endfor %}
             <h2>Add Size for {{ product.name }}</h2>
             <div class="form-group">
                 <label for="size">Size:</label>

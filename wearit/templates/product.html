@@ -11,7 +11,7 @@
                </h2>
             </div>
             <div>
-               {% include 'alert.html' %}
+               {% for message in messages %} <p>{{message}}</p> {% endfor %}
             </div>
             <div class="row">
                {% for products in addprod %}

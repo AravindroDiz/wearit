@@ -28,7 +28,7 @@
     <div class="hero_area">
         <div class="hero_area">
  
-          {% include 'inc/adminnavbar.html' %}
+            {% for message in messages %} <p>{{message}}</p> {% endfor %}
        </div>
  
  {% block body %}

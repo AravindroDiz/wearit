@@ -186,10 +186,16 @@
                   </div>
                   <span class="text-muted">
                 </div>
+                
+
                 {% if product_offer %}
                 <div class="product-offer">
                   <p> <strong>Rs. {{ discounted_price }}</strong>  <strike>Rs. {{ proddetails.base_price }}</strike> <p style="color: green;" >{{ product_offer.title }}</p> </p>
     
+                </div>
+                {% else %}
+                <div class="product-offer">
+                  <p><strong>Rs.{{proddetails.base_price}}</strong></p>
                 </div>
                 {% endif %}
       
@@ -229,7 +235,7 @@
                 <a href="{% url 'addtocart' proddetails.id %}" class="btn btn-warning shadow-0"> Add to Cart </a>
                 
               </div>
-              {% include "alert.html" %}
+              {% for message in messages %} <p>{{message}}</p> {% endfor %}
             </main>
           </div>
         </div>
