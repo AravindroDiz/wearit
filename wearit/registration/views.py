@@ -679,62 +679,27 @@ def checkoutpage(request):
                         product.save()
                         messages.success(request,"Order placed succesfully !")
                         return redirect('successpage')
-            elif payment == 'upi':
-        
-                client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY,settings.RAZORPAY_API_SECRET))
-                amount = int(total*100)
-                payment = client.order.create({'amount':amount,'currency':'INR','payment_capture':'1'})
+        elif payment == 'upi':
+            client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY,settings.RAZORPAY_API_SECRET))
+            amount = int(total*100)
+            payment = client.order.create({'amount':amount,'currency':'INR','payment_capture':'1'})
 
-                order = Order.objects.create(user=user,total_price=total)
-
-                order.save()
-                for item in cart_items:
-                    price = item.product.base_price * item.quantity
-                    order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
-                    order_item.save()
-                if order:
-                    cart_items.delete()
-                    ordered_items = OrderItem.objects.filter(order=order)
-                    for ordered_item in ordered_items:
-                        ordered_item.is_paid = True
-                        ordered_item.save()
-
-                        product = ordered_item.product
-                        quantity_ordered = order_item.quantity
-                        product.quantity -= quantity_ordered
-                        product.save()
-                        messages.success(request,"Order placed succesfully !")
-                        return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})
-            
-            elif payment == 'wallet':
-                if cus.wallet >= total:
-                    cus.wallet = cus.wallet - total
-                    cus.save()
-                    order = Order.objects.create(user=user,total_price=total)
-
-                    order.save()
-                    for item in cart_items:
-                        price = item.product.base_price * item.quantity
-                        order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
-                        order_item.save()
-                    if order:
-                        cart_items.delete()
-                        ordered_items = OrderItem.objects.filter(order=order)
-                        for ordered_item in ordered_items:
-                            ordered_item.is_paid = True
-                            ordered_item.save()
-
-                            product = ordered_item.product
-                            quantity_ordered = order_item.quantity
-                            product.quantity -= quantity_ordered
-                            product.save()
-                            messages.success(request,"Order placed succesfully !")
-                            return render('successpage') 
-
-                else:
-                    messages.error(request,"Insuficient balance!")
-                    return redirect('checkoutpage')
-                
+            order = Order.objects.create(user=user,total_price=total)
+            order.save()
+            for item in cart_items:
+                price = item.product.base_price * item.quantity
+                order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
+                order_item.save()
+            if order:
+                cart_items.delete()
+                ordered_items = OrderItem.objects.filter(order=order)
+                for ordered_item in ordered_items:
+                    product = ordered_item.product
+                    quantity_ordered = order_item.quantity
+                    product.quantity -= quantity_ordered
+                    product.save()
+                    messages.success(request,"Order placed succesfully !")
+                    return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})
     else:
         messages.error(request,"Please select a payment option")   
     

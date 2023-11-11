@@ -26,10 +26,17 @@
 </head>
 <body>
     <div class="hero_area">
+<<<<<<< HEAD
         <div class="hero_area">
  
           {% include 'inc/adminnavbar.html' %}
        </div>
+=======
+       <div class="hero_area">
+
+        {% for message in messages %} <p>{{message}}</p> {% endfor %}
+      </div>
+>>>>>>> 89294854b7f286748b631454d9c21666f768ea21
 
 {% block body %}
 
