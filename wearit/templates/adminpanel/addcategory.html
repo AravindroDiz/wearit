@@ -56,7 +56,7 @@
         <h2>Add Product</h2>
         <form method="POST" action="{% url 'addcategory' %}">
             {% csrf_token %}
-            {% include 'alert.html'%}
+            {% for message in messages %} <p>{{message}}</p> {% endfor %}
             <div class="form-group">
                 <label for="name">Category Name:</label>
                 <input type="text" id="name" name="name" step="0.01" required>

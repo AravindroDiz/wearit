@@ -69,10 +69,12 @@
                             <td>{{ i.item_price }}</td>
                             {% if i.payment_option == 'pending' %}
                             <td><button><a class="btn-btn-danger" href="{% url 'order_delivered' i.id %}">Deliver</a></button></td>
-                            {% else %}
+                            <td><button><a class="btn-btn-danger" href="{% url 'order_rejected' i.id %}">Reject</a></button></td>
+                            {% elif i.payment_option == 'Delivered' %}
                             <td style="color: rgb(48, 10, 236);">Delivered.</td>
+                            {% elif i.payment_option == 'Rejected' %}
+                            <td style="color: rgb(236, 10, 33);">Rejected.</td>
                             {% endif %}
-                            
                         </tr>
                         {% endfor %}
                         

@@ -54,6 +54,7 @@
                                 <tr>
                                     <th>Id</th>
                                     <th>Code</th>
+                                    <th>Discount Price</th>
                 
                                 </tr>
                             </thead>
@@ -62,6 +63,8 @@
                         <tr>
                             <td>{{forloop.counter}}</td>
                             <td>{{i.code }}</td>
+                            <td>{{i.discountprice }}</td>
+
                         </tr>
                         {% endfor %}
                         <!-- Add more user rows as needed -->

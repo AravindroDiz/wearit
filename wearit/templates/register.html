@@ -21,7 +21,7 @@
 
               <form method="POST" action="{% url 'register' %}">
                 {% csrf_token %}
-                {% include 'alert.html' %}
+                {% for message in messages %} <p>{{message}}</p> {% endfor %}
                 <div class="form-outline mb-4">
                   <input type="text" id="form3Example1cg" class="form-control form-control-lg" name='fname' type=text placeholder='First Name'required/>   
                 </div>
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" name='email' type=text placeholder='Email'required/>   
+                  <input type="email" id="form3Example1cg" class="form-control form-control-lg" name='email' type=text placeholder='Email'required/>   
                 </div>
 
                 <div class="form-outline mb-4">

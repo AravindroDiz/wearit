@@ -167,17 +167,7 @@
                           {{users.phone}}
                         </div>
                       </div>
-
-                      {% if default_address %}
-                      <div class="row">
-                        <div class="col-sm-3">
-                          <h6 class="mb-0">Address</h6>
-                        </div>
-                        <div class="col-sm-9 text-secondary">
-                          {{default_address.street_address}}
-                        </div>
-                      </div>
-                      {% endif %}
+                      
                       <hr>
                       <div class="row">
                         <div class="col-sm-12">
@@ -185,14 +175,22 @@
                           <a class="btn btn-danger " target="__blank" href="{% url 'addaddress' %}">Add address</a>
                         </div>
                       </div>
+                      
                     </div>
+                    
+                  </div>
+                  <div>
+                    {% for message in messages %} <p>{{message}}</p> {% endfor %}
                   </div>
                 </div>
                 
+                
               </div>
+              
     
             </div>
         </div>
+        
       <script src="{% static 'adminpanel/plugins/bower_components/jquery/dist/jquery.min.js' %}"></script>
     <!-- Bootstrap tether Core JavaScript -->
     <script src="{% static 'adminpanel/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>

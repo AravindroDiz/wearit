@@ -34,8 +34,9 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    wallet = models.FloatField(default=0)
 
-    # Add your custom fields here
+    
 
     objects = CustomUserManager()
 
@@ -108,15 +109,17 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
     
     
+    
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     item_price = models.DecimalField(max_digits=10,decimal_places=2)
-    payment_option = models.CharField(max_length=10,choices=[('pending','pending'),('Cancelled','Cancelled'),('Delivered','Delivered'),('returned','returned')],default='pending')
+    payment_option = models.CharField(max_length=10,choices=[('pending','pending'),('Cancelled','Cancelled'),('Delivered','Delivered'),('returned','returned'),('Rejected','Rejected')],default='pending')
     is_cancel = models.BooleanField(default=False)
     returned = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
 
 
 class Reviews(models.Model):
@@ -140,9 +143,12 @@ class ProductOffer(models.Model):
     discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
     prod = models.CharField(max_length=200,default=0)
 
+
 class Refferalcode(models.Model):
     code = models.CharField(max_length=10)
-    user = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    discountprice = models.IntegerField(validators=[MinValueValidator(0),MaxValueValidator(100)],default=False)
+
     
 
 class CategoryOffer(models.Model):
@@ -152,8 +158,7 @@ class CategoryOffer(models.Model):
     discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
 
 
-class CroppedImage(models.Model):
-    original_image = models.ImageField(upload_to='images/')
+
 
 
 

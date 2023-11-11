@@ -20,7 +20,7 @@
           <!-- Login Form -->
           <form method="POST" action="{% url 'loginn' %}">
             {% csrf_token %}
-            {% include 'alert.html'%}
+            {% for message in messages %} <p>{{message}}</p> {% endfor %}
             <input type="text" id="login" class="fadeIn second" name="email" placeholder="Email">
             <input type="password" id="password" class="fadeIn third" name="password" placeholder="Password">
             <input type="submit" class="fadeIn fourth" value="Log In">

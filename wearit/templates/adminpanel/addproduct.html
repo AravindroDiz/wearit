@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +9,13 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Content -->
     <div class="content">
         <h2>Add Product</h2>
-        <form method="POST" action="{% url 'addproduct' %}" enctype="multipart/form-data">
-            {% csrf_token %}`   
+        <form id="addProductForm" method="POST" action="{% url 'addproduct' %}" enctype="multipart/form-data">
+            {% csrf_token %}`
             <div class="form-group">
                 <label for="name">Product Name:</label>
                 <input type="text" id="name" name="name" step="0.01" required>
@@ -29,8 +31,12 @@
 
             <div class="form-group">
                 <label for="image">Choose Image</label>
-                <input type="file" id="image" name="image"  step="0.01" required>
-                <img src="" alt="Preview" id="imagePreview" style="width: 128px"/>
+                <input type="file" name="image" id="image" required />
+                <div class="cropbox">
+                    <img src="#" id="imagePreview" alt="Preview" style="width:128px" />
+                    <!-- <img src="#" class="imgpreview" style="width:128px" /> -->
+                </div>
+                <button type="button" id="saveButton">Save</button>
                 <button type="button" id="imageDeleteBtn">Delete</button>
             </div>
 
@@ -44,7 +50,7 @@
                 <input type="text" id="discription" name="discription" step="0.01" required>
             </div>
 
-           <div class="form-group">
+            <div class="form-group">
                 <label for="category">Category:</label>
                 <select id="category" name="category" required>
                     <option value="" disabled selected>Select a Category</option>
@@ -57,7 +63,7 @@
             <div class="form-group">
                 <button type="submit" class="add-product-button">Add Product</button>
             </div>
-            
+
         </form>
         <!-- Success Modal -->
 
@@ -104,6 +110,11 @@
             background-color: #0056b3;
         }
 
+        .cropbox {
+            overflow: hidden;
+            width: fit-content;
+          }
+
         /* Add more specific styling as needed */
     </style>
 
@@ -117,7 +128,7 @@
         }
         imagePicker.onchange = (e) => {
             imagePreview.src = URL.createObjectURL(e.target.files[0]);
-        }
+       }
 
         const imagesPreview = document.getElementById('imagesPreview');
         const images = document.getElementById('images');
@@ -130,10 +141,47 @@
                 imagesPreview.appendChild(_img);
             }
         }
+
+        /* CROPPER */
+       // const e_initialPreview = document.getElementById('imagePreview');
+       // const e_primaryFilePicker = document.getElementById('image');
+       // const e_saveButton = document.getElementById('saveButton');
+       // const e_addProductForm = document.getElementById('addProductForm');
+
+       // let cropper;
+       // e_primaryFilePicker.addEventListener('change', (e) => {
+       //     cropper?.destroy();
+       //     const initialImage = e.target.files[0];
+       //     const src = URL.createObjectURL(initialImage);
+       //     e_initialPreview.src = src;
+        //    cropper = new Cropper(e_initialPreview, {
+        //        preview: '.imgpreview'
+        //    });
+        //});
+
+        //e_addProductForm.addEventListener('submit', (e) => {
+         //   e.preventDefault();
+          //  e_primaryFilePicker.value = '';
+           // const formData = new FormData(e_addProductForm);
+            //const imageSrc = cropper.getCroppedCanvas({width: 300}).toDataURL();
+            //formData.has('image') && formData.delete('image');
+          //  cropper.getCroppedCanvas({width: 300}).toBlob(blob => {
+           //     formData.append('image', blob, 'filename.png');
+           // });
+           // e_initialPreview.src = imageSrc;
+            //cropper?.destroy();
+           // fetch(e_addProductForm.action, {
+          //      method: 'POST',
+//                body: formData,
+  //              redirect: 'follow'
+   //         })
+     //   })
     </script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/0.8.1/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
+
 </html>

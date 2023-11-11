@@ -22,7 +22,7 @@
         </span>
         <form action="{% url 'otp' %}" method="POST">
            {% csrf_token %}
-           {% include 'alert.html'%}
+           {% for message in messages %} <p>{{message}}</p> {% endfor %}
             <input type="text" name="verify_otp" id="">
             <button type="submit">Verify</button>
         </form>

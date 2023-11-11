@@ -28,10 +28,13 @@
                 <div class="card-header px-4 py-5 d-flex justify-content-between">
                   <h5 class="text-muted mb-0">Thanks for your Order, <span style="color: #a8729a;">{{users.first_name}}</span>!</h5>
                     <div>
-                        <a href="{% url 'userprofile' user.id %}" class="float-right btn btn-warning shadow-0" >Back</a>     
+                        <a href="{% url 'userprofile' user.id %}" class="float-right btn btn-warning shadow-0" >Back</a>   
+                        <a href="{% url 'downloadinvoice' %}" class="float-right btn btn-warning shadow-0" >Download Invoice</a>   
                     </div>
 
                 </div>
+
+
                 <div class="card-body p-4">
                   <div class="d-flex justify-content-between align-items-center mb-4">
                     <p class="lead fw-normal mb-0" style="color: #a8729a;">Your Orders</p>
@@ -62,6 +65,8 @@
                             <a class="btn btn-danger" href="{% url 'return_order' i.id %}">Return Order</a>
                             {% elif i.payment_option  == 'returned' %}
                             <p style="color: rgb(48, 10, 236);">Order Returned.</p>
+                            {% elif i.payment_option  == 'Rejected' %}
+                            <p style="color: rgb(236, 10, 21);">Order has been rejected.</p>
 
                             {% endif %}
                         </div>
@@ -80,5 +85,7 @@
           </div>
         </div>
       </section>
+      
+      
 </body>
 </html>

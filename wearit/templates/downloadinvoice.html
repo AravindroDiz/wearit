@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            <div class="white-box">
+                <h3 class="box-title">Order Report</h3>
+                <form id="dateForm" method="POST" action="{% url 'downloadinvoice' %}">
+                    {% csrf_token %}
+                    <label for="month">Month:</label>
+                    <select id="month" name="month" onchange="updateDays()">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+            
+                    <label for="day">Day:</label>
+                    <select id="day" name="day" >
+                        <option value="2023">2023</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+            
+                    <label for="year">Year:</label>
+                    <select id="year" name="year">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+            
+                    <input type="submit" value="Submit">
+                    <li class="nav-item">
+                        {% with date_str="2023-10-28" %}
+                        <a class="nav-link" href="{% url 'venue_pdf' %}">Download PDF</a>
+                        {% endwith %}
+                    </li>
+                </form>
+                <div class="d-md-flex">
+                    <ul class="list-inline d-flex ms-auto">
+                    </ul>
+                </div>
+                <!-- Add the canvas element for the sales chart -->
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Order At</th>
+                        <th scope="col">Total Price</th>
+                        <th scope="col">Amount Payable</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in orderitems %}
+                      <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{i.product.name}}</td>
+                        <td>{{i.quantity}}</td>
+                        <td>{{i.order.user.first_name}}</td>
+                        <td>{{i.order.order_date}}</td>
+                        <td>{{i.item_price}}</td>
+                        <td>{{i.item_price}}</td>
+                        
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateDays() {
+            const monthSelect = document.getElementById('month');
+            const daySelect = document.getElementById('day');
+            const selectedMonth = parseInt(monthSelect.value);
+            const daysInMonth = new Date(
+                new Date().getFullYear(), selectedMonth, 0
+            ).getDate();
+
+            // Clear existing day options
+            daySelect.innerHTML = '';
+
+            // Add day options for the selected month
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function populateYears() {
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+
+            for (let year = 2020; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+            }
+        }
+
+        // Initialize days based on the default month selection
+        updateDays();
+
+        // Populate the year select options
+        populateYears();
+    </script>
+
+</body>
+</html>

@@ -26,10 +26,10 @@
 </head>
 <body>
     <div class="hero_area">
-       <div class="hero_area">
-
-         {% include 'inc/adminnavbar.html' %}
-      </div>
+        <div class="hero_area">
+ 
+          {% include 'inc/adminnavbar.html' %}
+       </div>
 
 {% block body %}
 
@@ -41,14 +41,15 @@
             <div class="card bg-light">
                 <div class="card-body">
                     <h2 class="text-center mb-4">Product List</h2>
-                    <form method="POST">
-                        {%csrf_token%}
+                    
                         
                             <a href="{% url 'addproduct' %}" class="btn btn-success">Add Product</a>
                                            
                             <a href="{% url 'addcategory' %}" class="btn btn-success">Add Category</a>
+
                                     
-                        
+                        <form method="POST">
+                        {%csrf_token%}
                         <div class="input-group">
                             <input type="text" name="search" class="form-control" placeholder="Search by keyword">
                             <button type="submit" class="btn btn-info">Search</button>

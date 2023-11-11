@@ -239,6 +239,16 @@
                         <input type="text" id="coupon_code" name="coupon_code" placeholder="Enter your coupon code" >
                         <button type="submit" name="apply_coupon">Apply</button>
                 </div>
+
+                <div>
+                    <h2>Enter Referral Code</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <label for="referral_code">Referral Code:</label>   
+                        <input type="text" id="referral_code" name="referral_code" placeholder="Enter your referral code" />
+                        <button type="submit">Apply</button>
+                    </form>
+                </div>
     
                 <div class="card-body-right col-md-6">
     
@@ -257,8 +267,8 @@
                         </label>
                     </div><br>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="codOption" name="payment_method" value = "upi">
-                        <label class="form-check-label" for="codOption">
+                        <input class="form-check-input" type="checkbox" id="upiOption" name="payment_method" value = "upi">
+                        <label class="form-check-label" for="upiOption">
                             upi
                         </label>
                     </div>

@@ -45,6 +45,7 @@ urlpatterns = [
     path('buynow/<int:id>/',views.buynow,name='buynow'),
     path('return_order/<int:id>/',views.return_order,name='return_order'),
     path('order_delivered/<int:id>/',views.order_delivered,name='order_delivered'),
+    path('order_rejected/<int:id>/',views.order_rejected,name='order_rejected'),
     path('reviews/<int:id>/',views.reviews,name ='reviews'),
     path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
     path('add_coupon/', views.add_coupon, name='add_coupon'),
@@ -54,6 +55,10 @@ urlpatterns = [
     path('searchproduct/',views.search_products,name='search_products'),
     path('refferalcode/',views.refferalcode,name='refferalcode'),
     path('refferalview/',views.refferalview,name='refferalview'),
+    path('downloadinvoice/',views.downloadinvoice,name='downloadinvoice'),
+    path('wallet/',views.wallet,name='wallet'),
+    path('min_price/', views.min_price_template_view, name='min_price_template'),
+    path('max_price/', views.max_price_template_view, name='max_price_template'),
     
     path('reset_password/',auth_views.PasswordResetView.as_view(template_name="passwordreset.html"),name='reset_password'),
 
