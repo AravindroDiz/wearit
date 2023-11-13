@@ -433,7 +433,7 @@ def offerview(request):
     offerview = Coupon.objects.all()
     return render(request,'offerview.html',{'offer':offerview})
 
-@login_required(login_url='admin')
+
 def blockuser(request,id):
     block = Customer.objects.get(id=id)
     if block.is_active:
@@ -635,10 +635,9 @@ def checkoutpage(request):
         referral_code = request.POST.get('referral_code')
 
     
-        if 'apply_coupon' in request.POST:  # Check if the "Apply Coupon" button was clicked
+        if 'apply_coupon' in request.POST: 
             coupon_code = request.POST['coupon_code']
             try:
-                # Check if the coupon code is valid and get the discount amount
                 coupon = Coupon.objects.get(code=coupon_code)
                 if coupon.active:
                     discount = coupon.discount
@@ -679,27 +678,27 @@ def checkoutpage(request):
                         product.save()
                         messages.success(request,"Order placed succesfully !")
                         return redirect('successpage')
-        elif payment == 'upi':
-            client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY,settings.RAZORPAY_API_SECRET))
-            amount = int(total*100)
-            payment = client.order.create({'amount':amount,'currency':'INR','payment_capture':'1'})
+            elif payment == 'upi':
+                client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY,settings.RAZORPAY_API_SECRET))
+                amount = int(total*100)
+                payment = client.order.create({'amount':amount,'currency':'INR','payment_capture':'1'})
 
-            order = Order.objects.create(user=user,total_price=total)
-            order.save()
-            for item in cart_items:
-                price = item.product.base_price * item.quantity
-                order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
-                order_item.save()
-            if order:
-                cart_items.delete()
-                ordered_items = OrderItem.objects.filter(order=order)
-                for ordered_item in ordered_items:
-                    product = ordered_item.product
-                    quantity_ordered = order_item.quantity
-                    product.quantity -= quantity_ordered
-                    product.save()
-                    messages.success(request,"Order placed succesfully !")
-                    return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})
+                order = Order.objects.create(user=user,total_price=total)
+                order.save()
+                for item in cart_items:
+                    price = item.product.base_price * item.quantity
+                    order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
+                    order_item.save()
+                if order:
+                    cart_items.delete()
+                    ordered_items = OrderItem.objects.filter(order=order)
+                    for ordered_item in ordered_items:
+                        product = ordered_item.product
+                        quantity_ordered = order_item.quantity
+                        product.quantity -= quantity_ordered
+                        product.save()
+                        messages.success(request,"Order placed succesfully !")
+                        return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})
     else:
         messages.error(request,"Please select a payment option")   
     
@@ -714,22 +713,29 @@ def successpage(request):
 
     total = 0
     deduction = 0
+    total_amount = 0
 
     for item in cart_items:
         total += item.item_price
-        product_offer = ProductOffer.objects.get(product=item.product_id)
-        deduction = product_offer.discount
-        total_amout = item.item_price - product_offer.discount
-        print(total)
+
+        try:
+            product_offer = ProductOffer.objects.get(product=item.product_id)
+            deduction += product_offer.discount
+            total_amount += item.item_price - product_offer.discount
+        except ProductOffer.DoesNotExist:
+            # Handle the case where ProductOffer does not exist for the item
+            deduction += 0  # Default deduction value
+            total_amount += item.item_price
 
     context = {
         'cart_items': cart_items,
         'total': total,
         'deduction': deduction,
-        'total_amount':total_amout
+        'total_amount': total_amount
     }
 
     return render(request, 'successpage.html', context)
+
 
 
 @login_required(login_url='loginn')
@@ -816,7 +822,6 @@ def return_order(request,id):
 
 @login_required(login_url='admin')
 def order_rejected(request, id):
-    # Use get_object_or_404 for all lookups
     order_item = get_object_or_404(OrderItem, id=id)
     order = order_item.order
     user = order.user
