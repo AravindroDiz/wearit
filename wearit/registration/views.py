@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 
 from xhtml2pdf import pisa
+from django.http import Http404
 
 
 def index(request):
@@ -241,12 +242,10 @@ def productview(request):
     category = Category.objects.all()
     product = Product.objects.all()
     user = request.user
-    if user.is_staff:
+    if user.is_active:
         search = request.POST.get('search')
         if search:
             product = Product.objects.filter(name__icontains = search)
-        else:
-            product = Product.objects.all()
     return render(request,'adminpanel/productview.html',{'view':product,'cat':category})
 
 
@@ -396,7 +395,7 @@ def editproduct(request,id):
 def userview(request):
     cus = Customer.objects.all()
     user = request.user
-    if user.is_staff and request.method == 'POST':
+    if user.is_active:
         search = request.POST.get('search')
         if search:
             cus = Customer.objects.filter(first_name__icontains = search)
@@ -661,28 +660,39 @@ def checkoutpage(request):
 
 @csrf_exempt
 def successpage(request):
-    product = ProductOffer.objects.all()
-    latest_order = Order.objects.filter(user=request.user).latest('order_date')
-    cart_items = OrderItem.objects.filter(order=latest_order)
+    try:
+        # Your existing code
+        product = ProductOffer.objects.all()
+        latest_order = Order.objects.filter(user=request.user).latest('order_date')
+        cart_items = OrderItem.objects.filter(order=latest_order)
 
-    total = 0
-    deduction = 0
+        total = 0
+        deduction = 0
+        total_amount = 0  # Initialize total_amount outside the loop
 
-    for item in cart_items:
-        total += item.item_price
-        product_offer = ProductOffer.objects.get(product=item.product_id)
-        deduction = product_offer.discount
-        total_amout = item.item_price - product_offer.discount
-        print(total)
+        for item in cart_items:
+            total += item.item_price
+            try:
+                product_offer = ProductOffer.objects.get(product=item.product_id)
+                deduction = product_offer.discount
+                total_amount = item.item_price - product_offer.discount
+            except ProductOffer.DoesNotExist:
+                # Handle the case when there is no offer for the product
+                print("No offer for product:", item.product_id)
 
-    context = {
-        'cart_items': cart_items,
-        'total': total,
-        'deduction': deduction,
-        'total_amount':total_amout
-    }
+        context = {
+            'cart_items': cart_items,
+            'total': total,
+            'deduction': deduction,
+            'total_amount': total_amount
+        }
 
-    return render(request, 'successpage.html', context)
+        return render(request, 'successpage.html', context)
+
+    except Order.DoesNotExist:
+        # Handle the case when there is no order for the user
+        raise Http404("No order found for the user.")
+
 
 
 @login_required(login_url='loginn')

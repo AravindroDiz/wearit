@@ -41,7 +41,7 @@
             <div class="card bg-light">
                 <div class="card-body">
                     <h2 class="text-center mb-4">Product List</h2>
-                    <form method="POST">
+                    <form method="POST" action="">
                         {%csrf_token%}
                         
                             <a href="{% url 'addproduct' %}" class="btn btn-success">Add Product</a>
