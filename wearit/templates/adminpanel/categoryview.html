@@ -26,15 +26,15 @@
 </head>
 <body>
     <div class="hero_area">
-       <div class="hero_area">
-
-        {% for message in messages %} <p>{{message}}</p> {% endfor %}
-      </div>
-
-{% block body %}
-
-
-{% endblock body %}
+        <div class="hero_area">
+ 
+          {% include 'inc/adminnavbar.html' %}
+       </div>
+ 
+ {% block body %}
+ 
+ 
+ {% endblock body %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">

@@ -28,7 +28,7 @@
     <div class="hero_area">
         <div class="hero_area">
  
-            {% for message in messages %} <p>{{message}}</p> {% endfor %}
+          {% include 'inc/adminnavbar.html' %}
        </div>
  
  {% block body %}
@@ -60,21 +60,23 @@
                                 </tr>
                             </thead>
                         <tbody>
-                        {% for i in orderitem %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td>{{ i.order.user.first_name }}</td>
-                            <td>{{ i.product.name }}</td>
-                            <td>{{ i.quantity }}</td>
-                            <td>{{ i.item_price }}</td>
-                            {% if i.payment_option == 'pending' %}
-                            <td><button><a class="btn-btn-danger" href="{% url 'order_delivered' i.id %}">Deliver</a></button></td>
-                            {% else %}
-                            <td style="color: rgb(48, 10, 236);">Delivered.</td>
-                            {% endif %}
-                            
-                        </tr>
-                        {% endfor %}
+                            {% for i in orderitem %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{ i.order.user.first_name }}</td>
+                                <td>{{ i.product.name }}</td>
+                                <td>{{ i.quantity }}</td>
+                                <td>{{ i.item_price }}</td>
+                                {% if i.payment_option == 'pending' %}
+                                <td><button><a class="btn-btn-danger" href="{% url 'order_delivered' i.id %}">Deliver</a></button></td>
+                                <td><button><a class="btn-btn-danger" href="{% url 'order_rejected' i.id %}">Reject</a></button></td>
+                                {% elif i.payment_option == 'Delivered' %}
+                                <td style="color: rgb(48, 10, 236);">Delivered.</td>
+                                {% elif i.payment_option == 'Rejected' %}
+                                <td style="color: rgb(236, 10, 33);">Rejected.</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
                         
                     </tbody>
                         </table>

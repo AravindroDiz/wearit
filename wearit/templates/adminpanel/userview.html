@@ -28,7 +28,7 @@
     <div class="hero_area">
         <div class="hero_area">
  
-            {% for message in messages %} <p>{{message}}</p> {% endfor %}
+          {% include 'inc/adminnavbar.html' %}
        </div>
  
  {% block body %}
@@ -41,7 +41,7 @@
             <div class="card bg-light">
                 <div class="card-body">
                     <h2 class="text-center mb-4">Admin Panel</h2>
-                    <form method="POST" class="mb-4">
+                    <form method="POST">
                         {%csrf_token%}
                         <div class="input-group">
                             <input type="text" name="search" class="form-control" placeholder="Search by keyword">

@@ -34,8 +34,8 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    wallet = models.FloatField(default=0)
 
-    # Add your custom fields here
 
     objects = CustomUserManager()
 
@@ -117,6 +117,7 @@ class OrderItem(models.Model):
     payment_option = models.CharField(max_length=10,choices=[('pending','pending'),('Cancelled','Cancelled'),('Delivered','Delivered'),('returned','returned')],default='pending')
     is_cancel = models.BooleanField(default=False)
     returned = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
 
 
 class Reviews(models.Model):
@@ -152,8 +153,7 @@ class CategoryOffer(models.Model):
     discount = models.PositiveIntegerField(help_text="Discount percentage (e.g., 10 for 10%)")
 
 
-class CroppedImage(models.Model):
-    original_image = models.ImageField(upload_to='images/')
+
 
 
 

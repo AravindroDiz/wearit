@@ -125,7 +125,7 @@ def register(request):
             user.set_password(password)
             user.save()
             messages.success(request,'You have been succesfully registered.')
-            return HttpResponseRedirect(request.path_info)
+            return redirect('loginn')
 
     return render(request,'register.html')
     
@@ -238,9 +238,16 @@ def adminpanel(request):
 
 @login_required(login_url='admin')
 def productview(request):
-    proview = Product.objects.filter(status=True)
     category = Category.objects.all()
-    return render(request,'adminpanel/productview.html',{'view':proview,'cat':category})
+    product = Product.objects.all()
+    user = request.user
+    if user.is_staff:
+        search = request.POST.get('search')
+        if search:
+            product = Product.objects.filter(name__icontains = search)
+        else:
+            product = Product.objects.all()
+    return render(request,'adminpanel/productview.html',{'view':product,'cat':category})
 
 
 @login_required(login_url='admin')
@@ -387,8 +394,15 @@ def editproduct(request,id):
 
 @login_required(login_url='admin')
 def userview(request):
-    userview = Customer.objects.filter(is_superuser=False)
-    return render(request,'adminpanel/userview.html',{'usr':userview})
+    cus = Customer.objects.all()
+    user = request.user
+    if user.is_staff and request.method == 'POST':
+        search = request.POST.get('search')
+        if search:
+            cus = Customer.objects.filter(first_name__icontains = search)
+        else:
+            cus = Customer.objects.all()
+    return render(request,'adminpanel/userview.html',{'usr':cus})
 
 
 @login_required(login_url='admin')
@@ -690,6 +704,8 @@ def orderview(request):
 
 @login_required(login_url='loginn')
 def cancel_order(request,id):
+    user = request.user
+    customer = Customer.objects.get(email = user)
     if request.user.is_authenticated:
     
         orderitem = get_object_or_404(OrderItem,id=id)
@@ -703,6 +719,15 @@ def cancel_order(request,id):
             orderitem.product.quantity += orderitem.quantity
             orderitem.product.save()
 
+            if orderitem.is_paid:
+                amount = orderitem.item_price
+                print(amount)
+                customer.wallet += float(amount)
+                customer.save()
+
+                orderitem.item_price = 0   
+                orderitem.save()
+
             messages.success(request,'Order item canceled successfully.')
             return redirect('orderview')
         
@@ -711,6 +736,8 @@ def cancel_order(request,id):
 
 @login_required(login_url='loginn')
 def return_order(request,id):
+    user = request.user
+    customer = Customer.objects.get(email = user)
     if request.user.is_authenticated:
     
         orderitem = get_object_or_404(OrderItem,id=id)
@@ -722,6 +749,14 @@ def return_order(request,id):
             
             orderitem.product.quantity += orderitem.quantity
             orderitem.product.save()
+
+            if orderitem.is_paid:
+                amount = orderitem.item_price
+                customer.wallet += float(amount)
+                customer.save()
+
+                orderitem.item_price = 0   
+                orderitem.save()
 
             messages.success(request,'Order item returned successfully.')
             return redirect('orderview')
@@ -892,6 +927,116 @@ def refferalcode(request):
 def refferalview(request):
     refferal = Refferalcode.objects.all()
     return render(request,'refferalcodeview.html',{'refferal':refferal})
+
+
+def downloadinvoice(request):
+    prod = Product.objects.filter(status = True)
+    reviews = Reviews.objects.all()
+    products = Product.objects.filter(status=True).count()
+    users = Customer.objects.filter(is_active = True).count()
+    orders = Order.objects.filter(is_paid = False).count()
+    order = OrderItem.objects.all()
+    product = Product.objects.all()
+
+    order_items = []
+    if request.method == 'POST':
+        selected_date = request.POST.get('day')
+        selected_month = request.POST.get('month')
+        selected_year = request.POST.get('year')
+        
+        selected_date_str = f"{selected_year}-{selected_month}-{selected_date}"
+
+        try:
+            selected_date_obj = datetime.strptime(selected_date_str, "%Y-%m-%d")
+            selected_date_obj = timezone.make_aware(selected_date_obj)
+            
+        
+        except ValueError:
+            selected_date_obj = None
+        
+
+        if selected_date_obj:
+            orders_on_date = Order.objects.filter(order_date__date=selected_date_obj.date())
+            order_items = OrderItem.objects.filter(order__in=orders_on_date)
+
+        else:
+            order_items = []
+
+    date_str = "2023-10-28"  # Replace this with the actual date in the format "YYYY-MM-DD"
+    
+
+    return render(request, 'downloadinvoice.html', {
+        'prod': products,
+        'usr': users,
+        'view': prod,
+        'order': orders,
+        'orderitems': order_items,
+        'reviews': reviews,
+        'orders':order,
+        'products':product,
+        'context':date_str,
+    
+    
+    })
+
+def wallet(request):
+    if request.user.is_authenticated:
+        user = request.user
+        cus = Customer.objects.get(email=user)
+
+    return render(request, 'wallet.html', {'user': cus})
+
+
+def min_price_template_view(request):
+    if request.user.is_authenticated: 
+        user = request.user
+        prod = Product.objects.all().order_by('base_price')
+        return render(request, 'max_price_template.html', {'addprod' : prod,'usr':user})
+
+def max_price_template_view(request):
+    if request.user.is_authenticated: 
+        user = request.user
+        prod = Product.objects.all().order_by('-base_price')
+        return render(request, 'max_price_template.html', {'addprod' : prod,'usr':user})
+
+
+@login_required(login_url='admin')
+def order_rejected(request, id):
+    order_item = get_object_or_404(OrderItem, id=id)
+    order = order_item.order
+    user = order.user
+    customer = Customer.objects.get(email=user.email)
+
+    if order_item.payment_option == 'pending':
+        order_item.payment_option = 'Rejected'
+        order_item.save()
+
+    if order_item.payment_option == 'Rejected':
+        order_item.is_cancel = True
+        order_item.save()
+
+        product = order_item.product
+        print(product.quantity)
+        print(order_item.quantity)
+
+        product.quantity += order_item.quantity
+        product.save()
+
+        if order_item.is_paid:
+            amount = order_item.item_price
+            customer.wallet += float(amount)
+            customer.save()
+
+            order_item.item_price = 0
+            order_item.save()
+
+        messages.success(request, 'Order item rejected successfully.')
+        return redirect('adminorder')
+
+    # Handle the case where the order item is not pending
+    messages.warning(request, 'Cannot reject order item. It is not pending.')
+    return render(request, 'order.html')
+
 
 
 def adminlogout(request):

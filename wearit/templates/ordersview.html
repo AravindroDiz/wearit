@@ -28,7 +28,8 @@
                 <div class="card-header px-4 py-5 d-flex justify-content-between">
                   <h5 class="text-muted mb-0">Thanks for your Order, <span style="color: #a8729a;">{{users.first_name}}</span>!</h5>
                     <div>
-                        <a href="{% url 'userprofile' user.id %}" class="float-right btn btn-warning shadow-0" >Back</a>     
+                        <a href="{% url 'userprofile' user.id %}" class="float-right btn btn-warning shadow-0" >Back</a> 
+                        <a href="{% url 'downloadinvoice' %}" class="float-right btn btn-warning shadow-0" >Download Invoice</a>    
                     </div>
 
                 </div>
@@ -54,16 +55,18 @@
                           <p class="text-muted mb-0 small">Rs.{{i.order.total_price}}</p>
                         </div>
                         <div class="col-md-2 text-center d-flex justify-content-center align-items-center ">
-                            {% if i.payment_option == 'pending' %}
-                            <a class="btn btn-danger" href="{% url 'cancel_order' i.id %}">Cancel Order</a>
-                            {% elif i.payment_option == 'Cancelled' %}
-                            <p style="color: red;">Order has been cancelled.</p>
-                            {% elif i.payment_option  == 'Delivered' %}
-                            <a class="btn btn-danger" href="{% url 'return_order' i.id %}">Return Order</a>
-                            {% elif i.payment_option  == 'returned' %}
-                            <p style="color: rgb(48, 10, 236);">Order Returned.</p>
+                          {% if i.payment_option == 'pending' %}
+                          <a class="btn btn-danger" href="{% url 'cancel_order' i.id %}">Cancel Order</a>
+                          {% elif i.payment_option == 'Cancelled' %}
+                          <p style="color: red;">Order has been cancelled.</p>
+                          {% elif i.payment_option  == 'Delivered' %}
+                          <a class="btn btn-danger" href="{% url 'return_order' i.id %}">Return Order</a>
+                          {% elif i.payment_option  == 'returned' %}
+                          <p style="color: rgb(48, 10, 236);">Order Returned.</p>
+                          {% elif i.payment_option  == 'Rejected' %}
+                          <p style="color: rgb(236, 10, 21);">Order has been rejected.</p>
 
-                            {% endif %}
+                          {% endif %}
                         </div>
                       </div>
                       <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
