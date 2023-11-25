@@ -59,6 +59,7 @@ urlpatterns = [
     path('wallet/',views.wallet,name='wallet'),
     path('min_price/', views.min_price_template_view, name='min_price_template'),
     path('max_price/', views.max_price_template_view, name='max_price_template'),
+    path('filterby/', views.filterby, name='filterby'),
     
     path('reset_password/',auth_views.PasswordResetView.as_view(template_name="passwordreset.html"),name='reset_password'),
 

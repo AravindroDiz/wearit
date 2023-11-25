@@ -29,12 +29,12 @@ class CustomUserManager(BaseUserManager):
 class Customer(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
-    phone = models.CharField(max_length=12)
+    phone = models.CharField(max_length=15, blank=True, null=True)
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    wallet = models.FloatField(default=0)
+    wallet = models.DecimalField(max_digits=20, decimal_places=2, default=0)
 
 
     objects = CustomUserManager()
@@ -50,17 +50,20 @@ class Product(models.Model):
     category = models.ForeignKey('Category',on_delete=models.CASCADE,related_name='products')
     name = models.CharField(max_length=100,null=False,blank=False)
     description = models.TextField(max_length=500,null=False,blank=False)
-    quantity = models.IntegerField(null=False,blank=False)
-    base_price = models.IntegerField(default=0)
-    sale_price = models.IntegerField(default=0)
     image = models.ImageField(upload_to='media/',blank=True,null=True)
     sub_image = models.ManyToManyField('SubImage',blank=True)
+    sizes = models.PositiveIntegerField(choices=[(5, '5'), (6, '6'), (7, '7'), (8, '8'),(9, '9'),(10, '10')],default=0)
+    quantity = models.PositiveIntegerField(null=False, blank=False)
+    base_price = models.PositiveIntegerField(default=0)
+    sale_price = models.PositiveIntegerField(default=0)
     status = models.BooleanField(default=True)
     is_sale = models.BooleanField(default=False)
 
 
     def __str__(self):
         return self.name
+    
+
     
 class SubImage(models.Model):
     products =  models.ForeignKey(Product, on_delete=models.CASCADE)    
@@ -72,15 +75,6 @@ class Category(models.Model):
     name = models.CharField(max_length=100,null=False,blank=False)
     discription = models.TextField(default=True)
     status = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-
-
-class SizeVariant(models.Model):
-    product = models.ForeignKey('Product',on_delete=models.CASCADE,related_name='variants')
-    size = models.CharField(max_length=100,null=False,blank=False)
-    price_adjustment = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -99,6 +93,7 @@ class Cart(models.Model):
     user = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    size = models.PositiveIntegerField(default=0)
 
 
 class Order(models.Model):

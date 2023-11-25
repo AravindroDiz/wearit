@@ -3,9 +3,10 @@ from django.urls import reverse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.models import User,auth
 from django.contrib import messages
-from .models import Customer,Category,Product,SizeVariant,SubImage,Address,Cart,Order,OrderItem,Reviews,Coupon,ProductOffer,Refferalcode
+from .models import Customer,Category,Product,SubImage,Address,Cart,Order,OrderItem,Reviews,Coupon,ProductOffer,Refferalcode
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect
 from datetime import datetime,timedelta
@@ -24,6 +25,7 @@ from django.template.loader import get_template
 
 from xhtml2pdf import pisa
 from django.http import Http404
+
 
 
 def index(request):
@@ -48,14 +50,13 @@ def loginn(request):
         username = request.POST['email']
         password = request.POST['password']
         user = Customer.objects.filter(email = username)
-        
         if not user.exists():
             messages.warning(request,'Account Not Found !')
             return HttpResponseRedirect(request.path_info)
 
         
         user = authenticate(request,email=username,password=password)
-        if user is not None:
+        if user is not None and not user.is_staff:
             if user.is_active:
                 login(request,user)
                 request.session['username'] = username
@@ -129,15 +130,18 @@ def register(request):
             return redirect('loginn')
 
     return render(request,'register.html')
+
+
+
     
 @login_required(login_url='loginn')
 def productdetails(request,product_id):
     product = get_object_or_404(Product, pk=product_id)
     product_offer = ProductOffer.objects.filter(product=product).first()
     subimg = SubImage.objects.filter(products_id = product_id)
-    size_variants = SizeVariant.objects.filter(product=product)
     details = Product.objects.get(id=product_id)
     reviews = Reviews.objects.filter(product=product)
+    sizes = Product._meta.get_field('sizes').choices
 
     discounted_price = product.base_price
 
@@ -156,35 +160,31 @@ def productdetails(request,product_id):
         discounted_price = product.base_price
         
         print(discounted_price)
-    return render(request,'productdetails.html',{'proddetails':details,'product': product,'size_variants': size_variants,'subimg':subimg,'reviews':reviews,'product_offer': product_offer,'discounted_price':discounted_price})
+    return render(request,'productdetails.html',{'proddetails':details,'product': product,'subimg':subimg,'reviews':reviews,'product_offer': product_offer,'discounted_price':discounted_price,'sizes': sizes})
 
 
 def admin(request):
-    if request.user.is_authenticated:
-        return redirect('adminpanel')
-
     if request.method == 'POST':
         username = request.POST['email']
         password = request.POST['password']
-
-        user = authenticate(request,email=username,password=password)
+    try:
+        user = authenticate(request, email=username, password=password)
 
         if user is not None:
             if user.is_staff:
-                login(request, user)
                 request.session['username'] = username
+                login(request, user)
                 return redirect('adminpanel')
             else:
-                messages.warning(request, 'Invalid Credentials!')
-        else:
-            messages.warning(request, 'Account Not Found!')
+                messages.error(request, 'Login using user login!')
+                return redirect('loginn')
+    except:
+            pass
 
     return render(request, 'adminpanel/admin.html')
 
-
-@login_required(login_url='admin')
+@staff_member_required(login_url='admin')
 def adminpanel(request):
-    
     prod = Product.objects.filter(status = True)
     reviews = Reviews.objects.all()
     products = Product.objects.filter(status=True).count()
@@ -240,7 +240,7 @@ def adminpanel(request):
 @login_required(login_url='admin')
 def productview(request):
     category = Category.objects.all()
-    product = Product.objects.all()
+    product = Product.objects.filter(status=True)
     user = request.user
     if user.is_active:
         search = request.POST.get('search')
@@ -325,15 +325,13 @@ def addsize(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
-        size = request.POST['size']
-        price = request.POST['price']
-        if SizeVariant.objects.filter(product=product, size=size).exists():
-            messages.warning(request, 'Size already exists!')
-            return redirect('addsize')
-        else:
-            SizeVariant.objects.create(product=product, size=size, price_adjustment=price)
-            messages.success(request, 'Size added successfully!')
-            return redirect('adminpanel')
+        sizes = request.POST['size']
+        variant_prices = request.POST['variant_price']
+        variant_quantities = request.POST['variant_quantity']
+        product_variant = SizeVariant.objects.create(product=product, size=sizes, base_price=variant_prices, quantity=variant_quantities)
+        product_variant.save()
+        messages.success(request, 'Size added successfully.')
+        return redirect('adminpanel')
 
     return render(request, 'adminpanel/addsize.html', {'product': product})
 
@@ -489,35 +487,45 @@ def editprofile(request):
 
     return render(request,'editprofile.html',{'users':users})
 
+
 @login_required(login_url='loginn')
 def addtocart(request,id):
-    product = Product.objects.get(id=id)
-    user = request.user
+    if request.method == 'POST':
+        product = Product.objects.get(id=id)
+        user = request.user
+        size = request.POST.get('size')
 
-    if product.quantity == 0:
-        messages.error(request,"This product is out of stock")
-        return redirect('productdetails',product_id=product.id)
-    else:
-        cart_item,created = Cart.objects.get_or_create(user=user,product=product)
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-        messages.success(request,"Product added succesfully.")
-    return redirect('products')
+        if product.quantity == 0:
+            messages.error(request,"This product is out of stock")
+            return redirect('productdetails',product_id=product.id)
+        else:
+            cart_item,created = Cart.objects.get_or_create(user=user,product=product,size=size)
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
+                
+            messages.success(request,"Product added succesfully.")
+    product = Product.objects.get(id=id)
+    return redirect('cart')
 
 @login_required(login_url='loginn')
 def buynow(request,id):
+    if request.method == 'POST':
+        product = Product.objects.get(id=id)
+        user = request.user
+        size = request.POST.get('size')
+
+        if product.quantity == 0:
+            messages.error(request,"This product is out of stock")
+            return redirect('productdetails',product_id=product.id)
+        else:
+            cart_item,created = Cart.objects.get_or_create(user=user,product=product,size=size)
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
+                
+            messages.success(request,"Product added succesfully.")
     product = Product.objects.get(id=id)
-    user = request.user
-    if product.quantity == 0:
-        messages.error(request,"This product is out of stock")
-        return redirect('productdetails',product_id=product.id)
-    
-    else:
-        cart_item,created = Cart.objects.get_or_create(user=user,product=product)
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
     return redirect('cart')
 
 @login_required(login_url='loginn')
@@ -525,13 +533,16 @@ def removefromcart(request, id):
     user = request.user
     cart_item = get_object_or_404(Cart, user=user, id=id)
     cart_item.delete()
-    return redirect('home')
+    return redirect('cart')
     
     
 @login_required(login_url='loginn')
 def cart(request): 
     user = request.user
     users = Customer.objects.get(email=user)
+    if not Address.objects.filter(user=users).exists():
+        messages.warning(request, 'Please add an address to checkout !')
+
     cart_items = Cart.objects.filter(user=users)
     items_num = Cart.objects.filter(user=users).count()
     addre = Address.objects.filter(user=users)
@@ -557,6 +568,7 @@ def calculatetotal(cart_items):
         item_total = price * quantity
         total_price += item_total
     return total_price
+
 
 @login_required(login_url='loginn')
 def update_quantity(request, product_id):
@@ -629,7 +641,6 @@ def checkoutpage(request):
                         quantity_ordered = order_item.quantity
                         product.quantity -= quantity_ordered
                         product.save()
-                        messages.success(request,"Order placed succesfully !")
                         return redirect('successpage')
             elif payment == 'upi':
                 client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY,settings.RAZORPAY_API_SECRET))
@@ -637,10 +648,11 @@ def checkoutpage(request):
                 payment = client.order.create({'amount':amount,'currency':'INR','payment_capture':'1'})
 
                 order = Order.objects.create(user=user,total_price=total)
+                
                 order.save()
                 for item in cart_items:
                     price = item.product.base_price * item.quantity
-                    order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price)
+                    order_item =OrderItem.objects.create(order=order,product = item.product,quantity = item.quantity,item_price = price,is_paid=True)
                     order_item.save()
                 if order:
                     cart_items.delete()
@@ -650,11 +662,7 @@ def checkoutpage(request):
                         quantity_ordered = order_item.quantity
                         product.quantity -= quantity_ordered
                         product.save()
-                        messages.success(request,"Order placed succesfully !")
-                        return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})
-    else:
-        messages.error(request,"Please select a payment option")   
-    
+                        return render(request,'razorpay.html',{'user':cus,'payment':payment,'order':order})   
 
     return render(request,'checkoutpage.html',{'cart_items':cart_items,'addre':addre,'total':total,'num':items_num})
 
@@ -668,16 +676,15 @@ def successpage(request):
 
         total = 0
         deduction = 0
-        total_amount = 0  # Initialize total_amount outside the loop
+        total_amount = 0  
 
         for item in cart_items:
             total += item.item_price
             try:
                 product_offer = ProductOffer.objects.get(product=item.product_id)
                 deduction = product_offer.discount
-                total_amount = item.item_price - product_offer.discount
+                total_amount = item.item_price - deduction
             except ProductOffer.DoesNotExist:
-                # Handle the case when there is no offer for the product
                 print("No offer for product:", item.product_id)
 
         context = {
@@ -714,35 +721,30 @@ def orderview(request):
 
 @login_required(login_url='loginn')
 def cancel_order(request,id):
+    order = get_object_or_404(OrderItem, id=id)
     user = request.user
-    customer = Customer.objects.get(email = user)
-    if request.user.is_authenticated:
-    
-        orderitem = get_object_or_404(OrderItem,id=id)
-        if orderitem.is_cancel:
-            messages.error(request,'This order item has already been canceled.')
-        else:
-            orderitem.payment_option = 'Cancelled'
-            orderitem.is_cancel = True
-            orderitem.save()
-            
-            orderitem.product.quantity += orderitem.quantity
-            orderitem.product.save()
-
-            if orderitem.is_paid:
-                amount = orderitem.item_price
-                print(amount)
-                customer.wallet += float(amount)
-                customer.save()
-
-                orderitem.item_price = 0   
-                orderitem.save()
-
-            messages.success(request,'Order item canceled successfully.')
-            return redirect('orderview')
-        
-    
-    return render(request,'ordersview.html',{'order':orderitem})
+    cus = Customer.objects.get(email = user)
+    if order.is_paid:
+        total_amount = order.item_price
+        cus.wallet += total_amount
+        cus.save()
+        order.is_cancel = True
+        order.item_price = 0
+        order.payment_option = 'Cancelled'
+        order.save()
+        product = order.product
+        product.quantity += order.quantity
+        product.save()
+        messages.success(request, 'Order cancelled!')
+        return redirect('orderview')
+    else:
+        order.is_cancel = True
+        order.payment_option = 'Cancelled'
+        order.save()
+        product = order.product
+        product.quantity += order.quantity
+        product.save()
+        return redirect('orderview')
 
 @login_required(login_url='loginn')
 def return_order(request,id):
@@ -762,8 +764,9 @@ def return_order(request,id):
 
             if orderitem.is_paid:
                 amount = orderitem.item_price
-                customer.wallet += float(amount)
+                customer.wallet += amount
                 customer.save()
+                print(amount)
 
                 orderitem.item_price = 0   
                 orderitem.save()
@@ -989,6 +992,7 @@ def downloadinvoice(request):
     
     })
 
+
 def wallet(request):
     if request.user.is_authenticated:
         user = request.user
@@ -1000,14 +1004,28 @@ def wallet(request):
 def min_price_template_view(request):
     if request.user.is_authenticated: 
         user = request.user
-        prod = Product.objects.all().order_by('base_price')
+        prod = Product.objects.filter(status =True).order_by('base_price')
         return render(request, 'max_price_template.html', {'addprod' : prod,'usr':user})
 
 def max_price_template_view(request):
     if request.user.is_authenticated: 
         user = request.user
-        prod = Product.objects.all().order_by('-base_price')
+        prod = Product.objects.filter(status =True).order_by('-base_price')
         return render(request, 'max_price_template.html', {'addprod' : prod,'usr':user})
+    
+
+def filterby(request):
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    filtered_products = Product.objects.filter(base_price__gte=min_price, base_price__lte=max_price)
+
+    context = {
+        'products': filtered_products,
+    }
+
+    return render(request, 'categoryfilter.html', context)
+
 
 
 @login_required(login_url='admin')

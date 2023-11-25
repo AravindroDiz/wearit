@@ -1,0 +1,54 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+{% block body %}
+<div class="hero_area">
+
+   {% include 'inc/filternavbar.html' %}
+</div>
+
+<!-- product section -->
+<section class="product_section layout_padding" style="padding-left: 15rem;">
+   <div class="container">
+      <div class="heading_container heading_center">
+         <h2>
+            Our <span>products</span>
+         </h2>
+      </div>
+      <div>
+         {% for message in messages %} <p>{{message}}</p> {% endfor %}
+      </div>
+      <div class="row">
+         {% for products in products %}
+         <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="box" style="height: 18rem;">
+               <div class="option_container">
+                  <div class="options">
+                     <a href="{% url 'productdetails' products.id %}" class="option1">
+                        View
+                     </a>
+                  </div>
+               </div>
+               <div class="img-box" style="height: 7rem;">
+                  <img src="{{ products.image.url }}" alt="" style="height:100%; width:100%; object-fit:contain;">
+               </div>
+               <div class="detail-box">
+                  <h5>
+                     {{ products.name }}
+                  </h5>
+                  <br>
+               </div>
+               <div>
+                  <h5 style="text-align: center;">Rs.{{ products.base_price }}</h5>
+
+               </div>
+
+            </div>
+         </div>
+         {% endfor %}
+
+      </div>
+</section>
+<!-- end product section -->
+
+
+{% endblock body %}

@@ -106,7 +106,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h2>Wallet Balance</h2>
-                        <p class="balance-amount">${{user.wallet}}</p>
+                        <p class="balance-amount">${{ user.wallet }}</p>
                     </div>
                     <div>
                       <h6 class="mb-0"> <a href="{% url 'home' %}">home</a> </h6>
@@ -124,7 +124,6 @@
               
                 </div>
                 <div class="card-footer p-4">
-                  <div>{%for message in messages %}<p>{{ message }}</p>{% endfor %}</div>
                   <div class="d-flex justify-content-between">
                     <!-- <h5 class="fw-normal mb-0"><a href="#!">Track</a></h5>
                     <div class="border-start h-100"></div> -->
